@@ -7,7 +7,6 @@ public class Card : MonoBehaviour
     public static event System.Action<Card> Dropped;
     public static event System.Action<Card> SnapBacked;
     public static event System.Action<Card, Vector3, Vector3, int> DragPickedUp;
-    public static event System.Action<Card, Vector3, Quaternion> SnapBackStarted;
 
     private const float NudgeDuration = 0.5f;
     private const float NudgeAmplitude = 0.12f;
@@ -15,9 +14,8 @@ public class Card : MonoBehaviour
     private const float NudgeDamping = 7f;
     private const int DragSortingOrder = 999;
 
-    [SerializeField] private TMP_Text nameLabel;
-    [SerializeField] private GameObject horizontalVisual;
-    [SerializeField] private GameObject verticalVisual;
+    [SerializeField] private TMP_Text horizontalVisual;
+    [SerializeField] private TMP_Text verticalVisual;
 
     public int CurrentSortingOrder { get; private set; }
     public bool IsDragging => isDragging;
@@ -26,7 +24,6 @@ public class Card : MonoBehaviour
 
     private bool isDragging;
     private bool restingHorizontal;
-    private bool isBeingReplaced;
     private Vector3 touchOffset;
     private Vector3 startPosition;
     private Collider2D cardCollider;
@@ -43,21 +40,20 @@ public class Card : MonoBehaviour
         CurrentSortingOrder = srs.Length > 0 ? srs[0].sortingOrder :
                               canvases.Length > 0 ? canvases[0].sortingOrder : 0;
         restingSortingOrder = CurrentSortingOrder;
-        if (nameLabel == null) nameLabel = GetComponentInChildren<TMP_Text>();
+
     }
 
     public void Init(CardData data)
     {
         Data = data;
-        if (nameLabel != null) nameLabel.text = data.cardName;
+        foreach (TMP_Text label in GetComponentsInChildren<TMP_Text>(true))
+            label.text = data.cardName;
     }
 
     public void CancelDragSilently()
     {
         isDragging = false;
     }
-
-    public void MarkAsReplaced() => isBeingReplaced = true;
 
     public void PlayNudge(Vector3 snapPos, Quaternion snapRot)
     {
@@ -84,8 +80,8 @@ public class Card : MonoBehaviour
     private void ApplyOrientation(bool isHorizontal)
     {
         if (horizontalVisual == null || verticalVisual == null) return;
-        horizontalVisual.SetActive(isHorizontal);
-        verticalVisual.SetActive(!isHorizontal);
+        horizontalVisual.gameObject.SetActive(isHorizontal);
+        verticalVisual.gameObject.SetActive(!isHorizontal);
     }
 
     public void SetSortingOrder(int order)
@@ -187,8 +183,6 @@ public class Card : MonoBehaviour
         transform.position = startPosition;
         SetSortingOrder(restingSortingOrder);
         ApplyOrientation(restingHorizontal);
-        SnapBackStarted?.Invoke(this, startPosition, transform.rotation);
-        if (isBeingReplaced) yield break;
         yield return StartCoroutine(NudgeCoroutine(startPosition));
     }
 
