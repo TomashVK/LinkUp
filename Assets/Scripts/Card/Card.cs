@@ -6,7 +6,7 @@ public class Card : MonoBehaviour
 {
     public static event System.Action<Card> Dropped;
     public static event System.Action<Card> SnapBacked;
-    public static event System.Action<Card, Vector3, Vector3, int> DragPickedUp;
+    public static event System.Action<Card> DragPickedUp;
 
     private const float NudgeDuration = 0.5f;
     private const float NudgeAmplitude = 0.12f;
@@ -16,6 +16,7 @@ public class Card : MonoBehaviour
 
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalVisual;
+    [SerializeField] private float dragExtraOffset = 0f;
 
     public int CurrentSortingOrder { get; private set; }
     public bool IsDragging => isDragging;
@@ -50,25 +51,10 @@ public class Card : MonoBehaviour
             label.text = data.cardName;
     }
 
-    public void CancelDragSilently()
-    {
-        isDragging = false;
-    }
-
     public void PlayNudge(Vector3 snapPos, Quaternion snapRot)
     {
         transform.SetPositionAndRotation(snapPos, snapRot);
         StartCoroutine(NudgeCoroutine(snapPos));
-    }
-
-    public void BeginDragTransfer(Vector3 startPos, Vector3 offset, int restingOrder)
-    {
-        startPosition = startPos;
-        touchOffset = offset;
-        restingSortingOrder = restingOrder;
-        isDragging = true;
-        SetSortingOrder(DragSortingOrder);
-        ApplyOrientation(true);
     }
 
     public void SetHorizontal(bool isHorizontal)
@@ -137,12 +123,12 @@ public class Card : MonoBehaviour
         if (topCard != this) return;
 
         startPosition = transform.position;
-        touchOffset = transform.position - worldPos;
+        touchOffset = new Vector3(transform.position.x - worldPos.x, cardCollider.bounds.extents.y + dragExtraOffset, 0f);
         restingSortingOrder = CurrentSortingOrder;
         isDragging = true;
         PointerInputService.Instance.IsCardDragging = true;
         SetSortingOrder(DragSortingOrder);
-        DragPickedUp?.Invoke(this, startPosition, touchOffset, restingSortingOrder);
+        DragPickedUp?.Invoke(this);
         ApplyOrientation(true);
     }
 

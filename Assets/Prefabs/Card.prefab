@@ -94,6 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Card
   horizontalVisual: {fileID: 2223034050557610944}
   verticalVisual: {fileID: 2833142126170319654}
+  dragExtraOffset: 0.2
 --- !u!1 &2561479859509869188
 GameObject:
   m_ObjectHideFlags: 0

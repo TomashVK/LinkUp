@@ -73,15 +73,9 @@ public class HandManager : MonoBehaviour
             UpdateCardPositions();
     }
 
-    private void OnCardDragPickedUp(Card draggedCard, Vector3 startPos, Vector3 touchOffset, int restingOrder)
+    private void OnCardDragPickedUp(Card draggedCard)
     {
         isDragging = false;
-
-        int index = handCards.IndexOf(draggedCard);
-        if (index < 0) return;
-
-        draggedCard.CancelDragSilently();
-        draggedCard.BeginDragTransfer(startPos, touchOffset, restingOrder);
     }
 
     private void DrawCard()
@@ -111,6 +105,11 @@ public class HandManager : MonoBehaviour
         for (int i = 0; i < cardCount; i++)
         {
             bool shouldBeHorizontal = i == cardCount - 1;
+
+            handCards[i].SetHorizontal(shouldBeHorizontal);
+
+            if (handCards[i].IsDragging) continue;
+
             float t = firstCardPosition + i * spacing;
             Vector3 position = spline.EvaluatePosition(t);
             Vector3 forward = spline.EvaluateTangent(t);
@@ -129,7 +128,6 @@ public class HandManager : MonoBehaviour
             }
 
             handCards[i].SetSortingOrder(i);
-            handCards[i].SetHorizontal(shouldBeHorizontal);
         }
     }
 

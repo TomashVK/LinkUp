@@ -508,13 +508,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandManager
   maxHandSize: 100
-  horizontalCardPrefab: {fileID: 1396578861839730735, guid: 6367011a901fb44b1afc9ec3242e2f5e, type: 3}
-  verticalCardPrefab: {fileID: 1396578861839730735, guid: a84ade9350d4643e1881ce2517beedb9, type: 3}
+  cardPrefab: {fileID: 1396578861839730735, guid: dad2442495b0244ff80a91f84158c392, type: 3}
   cardDeck: {fileID: 1834661665}
   splineContainer: {fileID: 738756341}
-  targetSplineRange: 0.8
-  maxSpacing: 0.12
-  minVisibleCardFraction: 0.35
+  spacing: 0.12
 --- !u!1 &1834661660
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,7 +576,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.8, y: 3.79}
+  m_Size: {x: 2.8, y: 3.8}
   m_EdgeRadius: 0
 --- !u!212 &1834661662
 SpriteRenderer:
@@ -650,7 +647,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2, y: 4, z: 0}
-  m_LocalScale: {x: 0.403053, y: 0.403053, z: 0.403053}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -829,8 +826,8 @@ Transform:
   m_GameObject: {fileID: 2119459989}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.05, y: -0.16, z: 0}
-  m_LocalScale: {x: 0.5645, y: 0.5645, z: 0.5645}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
