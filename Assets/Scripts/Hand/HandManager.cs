@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -11,9 +12,12 @@ public class HandManager : MonoBehaviour
     [SerializeField] private SplineContainer splineContainer;
     [SerializeField] private float spacing = 0.12f;
 
+    private const float FlipHalfDuration = 0.15f;
+
     private readonly List<Card> handCards = new();
     private float handScrollOffset = 0f;
     private bool isDragging = false;
+    private bool isDrawing = false;
     private Vector2 lastDragPosition;
 
     private void OnEnable()
@@ -80,16 +84,63 @@ public class HandManager : MonoBehaviour
 
     private void DrawCard()
     {
-        if (handCards.Count >= maxHandSize) return;
+        if (isDrawing || handCards.Count >= maxHandSize) return;
         if (cardDeck == null || !cardDeck.HasCards) return;
+        StartCoroutine(DrawCardWithFlip());
+    }
 
+    private IEnumerator DrawCardWithFlip()
+    {
+        isDrawing = true;
+        // Cap by available hand slots so fake-card threshold works regardless of total deck size.
+        int remainingBeforeDraw = Mathf.Min(cardDeck.RemainingCount, maxHandSize - handCards.Count);
+        Vector3 spawnPos = cardDeck.GetSpawnPosition(remainingBeforeDraw);
         CardData data = cardDeck.DrawNext();
-        GameObject newCard = Instantiate(cardPrefab, cardDeck.transform.position, cardDeck.transform.rotation);
-        Card card = newCard.GetComponent<Card>();
-        card.Init(data);
-        handCards.Add(card);
+        Vector3 deckEuler = cardDeck.transform.eulerAngles;
 
+        // Move deck to the fake card's position — it stays there after the draw (deck sinks into the stack).
+        cardDeck.transform.position = spawnPos;
+
+        // Phase 1: rotate deck to edge-on (Y + 90)
+        yield return cardDeck.transform
+            .DORotate(new Vector3(deckEuler.x, deckEuler.y + 90f, deckEuler.z), FlipHalfDuration)
+            .WaitForCompletion();
+
+        // Hide deck and snap back to original rotation while invisible
+        SetDeckVisible(false);
+        cardDeck.transform.rotation = Quaternion.Euler(deckEuler);
+
+        // Spawn card edge-on at the top fake card's position
+        Quaternion cardStartRot = Quaternion.Euler(deckEuler.x, deckEuler.y + 90f, deckEuler.z);
+        GameObject newCardObj = Instantiate(cardPrefab, spawnPos, cardStartRot);
+        Card card = newCardObj.GetComponent<Card>();
+        card.Init(data);
+        card.SetHorizontal(true);
+
+        // Phase 2: rotate card to front face
+        yield return newCardObj.transform
+            .DORotate(deckEuler, FlipHalfDuration)
+            .WaitForCompletion();
+
+        SetDeckVisible(true);
+        cardDeck.OnCardDrawn(remainingBeforeDraw);
+        if (cardDeck.gameObject.activeSelf)
+        {
+            cardDeck.transform.position = cardDeck.GetCurrentTopPosition();
+            if (remainingBeforeDraw == 2)
+                SetDeckVisible(false);
+        }
+        handCards.Add(card);
+        isDrawing = false;
         UpdateCardPositions();
+    }
+
+    private void SetDeckVisible(bool visible)
+    {
+        foreach (Renderer r in cardDeck.GetComponentsInChildren<Renderer>(true))
+            r.enabled = visible;
+        foreach (Canvas c in cardDeck.GetComponentsInChildren<Canvas>(true))
+            c.enabled = visible;
     }
 
     private void UpdateCardPositions()

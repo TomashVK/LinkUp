@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Renderer), typeof(Collider2D))]
 public class SceneAnchor : MonoBehaviour
 {
     public enum AnchorType
