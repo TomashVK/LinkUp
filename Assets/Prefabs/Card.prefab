@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5462005444737806041}
   - component: {fileID: 3134787022664550358}
-  - component: {fileID: -761069972826626019}
+  - component: {fileID: 9052723857855116404}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -80,7 +80,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.8, y: 3.8}
   m_EdgeRadius: 0
---- !u!114 &-761069972826626019
+--- !u!114 &9052723857855116404
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ecf035713c6614327a06b79d0715082e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Card
+  m_EditorClassIdentifier: Assembly-CSharp::UnoAssociations.Card
   horizontalVisual: {fileID: 2223034050557610944}
   verticalVisual: {fileID: 2833142126170319654}
   dragExtraOffset: 0.2
@@ -266,8 +266,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 211.46002, y: 50}
+  m_AnchoredPosition: {x: 4.1, y: 0}
+  m_SizeDelta: {x: 209.76999, y: 61.83}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2900446196618892722
 CanvasRenderer:
@@ -324,7 +324,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44.75
+  m_fontSize: 55.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 5.9133453, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

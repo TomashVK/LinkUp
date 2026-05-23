@@ -33,11 +33,11 @@ public class HandSplineAnchor : MonoBehaviour
 
         float depth = -cam.transform.position.z;
 
-        Rect sa = Screen.safeArea;
-        float safeLeft   = sa.x / Screen.width;
-        float safeRight  = (sa.x + sa.width)  / Screen.width;
-        float safeBottom = sa.y / Screen.height;
-        float safeTop    = (sa.y + sa.height) / Screen.height;
+        Rect sv = SafeAreaHelper.GetViewportRect();
+        float safeLeft   = sv.xMin;
+        float safeRight  = sv.xMax;
+        float safeBottom = sv.yMin;
+        float safeTop    = sv.yMax;
 
         Vector3 worldSafeLeft  = cam.ViewportToWorldPoint(new Vector3(safeLeft,  0f, depth));
         Vector3 worldSafeRight = cam.ViewportToWorldPoint(new Vector3(safeRight, 0f, depth));

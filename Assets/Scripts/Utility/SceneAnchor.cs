@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Renderer), typeof(Collider2D))]
+[RequireComponent(typeof(Collider2D))]
 public class SceneAnchor : MonoBehaviour
 {
     public enum AnchorType
@@ -16,17 +16,17 @@ public class SceneAnchor : MonoBehaviour
         BottomRight
     }
 
-    public AnchorType anchor;
-    public float offsetX;
-    public float offsetY;
+    [SerializeField] private AnchorType anchor;
+    [SerializeField] private float offsetX;
+    [SerializeField] private float offsetY;
 
     void Start()
     {
-        Rect sa = Screen.safeArea;
-        float safeLeft   = sa.x / Screen.width;
-        float safeRight  = (sa.x + sa.width)  / Screen.width;
-        float safeBottom = sa.y / Screen.height;
-        float safeTop    = (sa.y + sa.height) / Screen.height;
+        Rect sv = SafeAreaHelper.GetViewportRect();
+        float safeLeft   = sv.xMin;
+        float safeRight  = sv.xMax;
+        float safeBottom = sv.yMin;
+        float safeTop    = sv.yMax;
 
         // Normalized anchor position: 0 = left/bottom edge, 0.5 = center, 1 = right/top edge.
         // Kept separate from viewport so the pivot formula stays correct regardless of safe area offset.

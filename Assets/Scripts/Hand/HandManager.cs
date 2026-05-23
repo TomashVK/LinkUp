@@ -15,10 +15,15 @@ public class HandManager : MonoBehaviour
     private const float FlipHalfDuration = 0.15f;
 
     private readonly List<Card> handCards = new();
-    private float handScrollOffset = 0f;
     private bool isDragging = false;
     private bool isDrawing = false;
     private Vector2 lastDragPosition;
+    private HandSplineLayout _layout;
+
+    private void Awake()
+    {
+        _layout = new HandSplineLayout(splineContainer, spacing);
+    }
 
     private void OnEnable()
     {
@@ -67,7 +72,7 @@ public class HandManager : MonoBehaviour
     private void OnCardDropped(Card card)
     {
         handCards.Remove(card);
-        if (handCards.Count == 0) handScrollOffset = 0f;
+        if (handCards.Count == 0) _layout.ScrollOffset = 0f;
         UpdateCardPositions();
     }
 
@@ -110,7 +115,7 @@ public class HandManager : MonoBehaviour
             .WaitForCompletion();
 
         // Hide deck and snap back to original rotation while invisible
-        SetDeckVisible(false);
+        cardDeck.SetVisible(false);
         cardDeck.transform.rotation = Quaternion.Euler(deckEuler);
 
         // Spawn card edge-on at the top fake card's position
@@ -125,7 +130,7 @@ public class HandManager : MonoBehaviour
             .DORotate(deckEuler, FlipHalfDuration)
             .WaitForCompletion();
 
-        SetDeckVisible(true);
+        cardDeck.SetVisible(true);
         cardDeck.OnCardDrawn(remainingBeforeDraw);
         if (cardDeck.gameObject.activeSelf && remainingBeforeDraw <= cardDeck.FakeCardCount + 1)
         {
@@ -137,73 +142,15 @@ public class HandManager : MonoBehaviour
         UpdateCardPositions();
     }
 
-    private void SetDeckVisible(bool visible)
-    {
-        foreach (Renderer r in cardDeck.GetComponentsInChildren<Renderer>(true))
-            r.enabled = visible;
-        foreach (Canvas c in cardDeck.GetComponentsInChildren<Canvas>(true))
-            c.enabled = visible;
-    }
-
     private void UpdateCardPositions()
     {
-        int cardCount = handCards.Count;
-        if (cardCount == 0) return;
-
-        if (!IsHandScrollable()) handScrollOffset = 0f;
-        handScrollOffset = ClampScrollOffset(handScrollOffset, cardCount);
-        float firstCardPosition = 0.5f + handScrollOffset - (cardCount - 1) * spacing / 2f;
-        Spline spline = splineContainer.Spline;
-
-        for (int i = 0; i < cardCount; i++)
-        {
-            bool shouldBeHorizontal = i == cardCount - 1;
-
-            handCards[i].SetHorizontal(shouldBeHorizontal);
-
-            if (handCards[i].IsDragging) continue;
-
-            float t = firstCardPosition + i * spacing;
-            Vector3 position = spline.EvaluatePosition(t);
-            Vector3 forward = spline.EvaluateTangent(t);
-            Vector3 up = spline.EvaluateUpVector(t);
-            Quaternion rotation = Quaternion.LookRotation(up, Vector3.Cross(up, forward).normalized);
-
-            if (isDragging)
-            {
-                DOTween.Kill(handCards[i].transform);
-                handCards[i].transform.SetPositionAndRotation(position, rotation);
-            }
-            else
-            {
-                handCards[i].transform.DOMove(position, 0.25f);
-                handCards[i].transform.DORotateQuaternion(rotation, 0.25f);
-            }
-
-            handCards[i].SetSortingOrder(i);
-        }
-    }
-
-    private bool IsHandScrollable()
-    {
-        if (handCards.Count <= 1) return false;
-        return (handCards.Count - 1) * spacing > 1f;
-    }
-
-    private float ClampScrollOffset(float offset, int cardCount)
-    {
-        float halfSpan = (cardCount - 1) * spacing / 2f;
-        float minOffset = halfSpan - 0.5f;
-        float maxOffset = 0.5f - halfSpan;
-        return minOffset <= maxOffset
-            ? Mathf.Clamp(offset, minOffset, maxOffset)
-            : Mathf.Clamp(offset, maxOffset, minOffset);
+        _layout.PlaceCards(handCards, isDragging);
     }
 
     private void HandleHandDrag()
     {
         if (!isDragging || handCards.Count == 0) return;
-        if (!IsHandScrollable()) return;
+        if (!_layout.IsScrollable(handCards.Count)) return;
 
         Vector2 currentPos = PointerInputService.Instance.Position;
         float deltaX = currentPos.x - lastDragPosition.x;
@@ -211,22 +158,9 @@ public class HandManager : MonoBehaviour
 
         if (Mathf.Abs(deltaX) < 0.001f) return;
 
-        handScrollOffset = ClampScrollOffset(handScrollOffset + ScreenDeltaToSplineDelta(deltaX), handCards.Count);
+        _layout.ScrollOffset = _layout.ClampOffset(
+            _layout.ScrollOffset + _layout.ScreenDeltaToSplineDelta(deltaX),
+            handCards.Count);
         UpdateCardPositions();
-    }
-
-    private float ScreenDeltaToSplineDelta(float screenDeltaX)
-    {
-        Camera cam = Camera.main;
-        if (cam == null) return 0f;
-
-        Spline spline = splineContainer.Spline;
-        const float dt = 0.01f;
-        float refT = Mathf.Clamp(0.5f + handScrollOffset, 0f, 1f - dt);
-
-        float screenDist = cam.WorldToScreenPoint(spline.EvaluatePosition(refT + dt)).x
-                         - cam.WorldToScreenPoint(spline.EvaluatePosition(refT)).x;
-
-        return Mathf.Abs(screenDist) < 0.001f ? 0f : screenDeltaX * dt / screenDist;
     }
 }

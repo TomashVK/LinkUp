@@ -73,6 +73,14 @@ public class CardDeck : MonoBehaviour
             gameObject.SetActive(false);
     }
 
+    public void SetVisible(bool visible)
+    {
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
+            r.enabled = visible;
+        foreach (Canvas c in GetComponentsInChildren<Canvas>(true))
+            c.enabled = visible;
+    }
+
     private static CardData[] CreateFakeDeck()
     {
         string[] names = { "Apple", "Banana", "Cherry", "Dog", "Elephant", "Flower", "Guitar", "House", "Ice Cream", "Jellyfish" };

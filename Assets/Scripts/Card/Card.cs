@@ -41,7 +41,6 @@ public class Card : MonoBehaviour
         CurrentSortingOrder = srs.Length > 0 ? srs[0].sortingOrder :
                               canvases.Length > 0 ? canvases[0].sortingOrder : 0;
         restingSortingOrder = CurrentSortingOrder;
-
     }
 
     public void Init(CardData data)
