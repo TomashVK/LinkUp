@@ -128,7 +128,7 @@ public class HandManager : MonoBehaviour
         {
             cardDeck.transform.position = cardDeck.GetCurrentTopPosition();
             if (remainingBeforeDraw == 2)
-                SetDeckVisible(false);
+                cardDeck.HideTopFakeCard();
         }
         handCards.Add(card);
         isDrawing = false;

@@ -22,6 +22,18 @@ public class CardDeck : MonoBehaviour
         return cards[drawIndex++];
     }
 
+    // Hides the topmost active fake card (called after deck settles on it).
+    public void HideTopFakeCard()
+    {
+        if (fakeDeckCards == null) return;
+        foreach (GameObject fake in fakeDeckCards)
+            if (fake != null && fake.activeSelf)
+            {
+                fake.SetActive(false);
+                return;
+            }
+    }
+
     // Position of the first still-active fake card; used to rest the deck after each draw.
     public Vector3 GetCurrentTopPosition()
     {
