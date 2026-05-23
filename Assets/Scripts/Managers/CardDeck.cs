@@ -9,6 +9,7 @@ public class CardDeck : MonoBehaviour
 
     public bool HasCards => drawIndex < cards.Length;
     public int RemainingCount => cards.Length - drawIndex;
+    public int FakeCardCount => fakeDeckCards != null ? fakeDeckCards.Length : 0;
 
     private void Awake()
     {
@@ -74,7 +75,7 @@ public class CardDeck : MonoBehaviour
 
     private static CardData[] CreateFakeDeck()
     {
-        string[] names = { "Apple", "Banana", "Cherry", "Dog", "Elephant"};
+        string[] names = { "Apple", "Banana", "Cherry", "Dog", "Elephant", "Flower", "Guitar", "House", "Ice Cream", "Jellyfish" };
         var deck = new CardData[names.Length];
         for (int i = 0, n = names.Length; i < n; i++)
             deck[i] = new CardData { id = i + 1, cardName = names[i] };

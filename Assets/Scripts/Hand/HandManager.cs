@@ -92,14 +92,17 @@ public class HandManager : MonoBehaviour
     private IEnumerator DrawCardWithFlip()
     {
         isDrawing = true;
-        // Cap by available hand slots so fake-card threshold works regardless of total deck size.
-        int remainingBeforeDraw = Mathf.Min(cardDeck.RemainingCount, maxHandSize - handCards.Count);
+        int remainingBeforeDraw = cardDeck.RemainingCount;
         Vector3 spawnPos = cardDeck.GetSpawnPosition(remainingBeforeDraw);
         CardData data = cardDeck.DrawNext();
         Vector3 deckEuler = cardDeck.transform.eulerAngles;
 
         // Move deck to the fake card's position — it stays there after the draw (deck sinks into the stack).
         cardDeck.transform.position = spawnPos;
+
+        // On the last draw, destroy the fake card underneath before the animation so it never shows through.
+        if (remainingBeforeDraw == 1)
+            cardDeck.HideTopFakeCard();
 
         // Phase 1: rotate deck to edge-on (Y + 90)
         yield return cardDeck.transform
@@ -124,11 +127,10 @@ public class HandManager : MonoBehaviour
 
         SetDeckVisible(true);
         cardDeck.OnCardDrawn(remainingBeforeDraw);
-        if (cardDeck.gameObject.activeSelf)
+        if (cardDeck.gameObject.activeSelf && remainingBeforeDraw <= cardDeck.FakeCardCount + 1)
         {
             cardDeck.transform.position = cardDeck.GetCurrentTopPosition();
-            if (remainingBeforeDraw == 2)
-                cardDeck.HideTopFakeCard();
+            cardDeck.HideTopFakeCard();
         }
         handCards.Add(card);
         isDrawing = false;
