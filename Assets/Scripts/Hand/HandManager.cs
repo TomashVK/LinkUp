@@ -14,6 +14,7 @@ public class HandManager : MonoBehaviour
     [SerializeField] private float spacing = 1.2f;
     [SerializeField] private float margin = 0.5f;
     [SerializeField] private RevealPile revealPile;
+    [SerializeField] private float dealFlipDuration = 0.05f;
 
     private const float FlipHalfDuration = 0.15f;
 
@@ -88,12 +89,12 @@ public class HandManager : MonoBehaviour
     public IEnumerator DealInitial(int handSize, ActiveCardSlot activeSlot)
     {
         isDealing = true;
-        yield return StartCoroutine(FlipTopCard(activeSlot.ReceiveCard));
+        yield return StartCoroutine(FlipTopCard(activeSlot.ReceiveCard, dealFlipDuration));
         for (int i = 0; i < handSize; i++)
             yield return StartCoroutine(FlipTopCard(card => {
                 handCards.Add(card);
                 UpdateCardPositions();
-            }));
+            }, dealFlipDuration));
         isDealing = false;
     }
 
@@ -127,7 +128,7 @@ public class HandManager : MonoBehaviour
         yield return StartCoroutine(FlipTopCard(card => revealPile.ReceiveCard(card)));
     }
 
-    private IEnumerator FlipTopCard(System.Action<Card> onFlipped)
+    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = FlipHalfDuration)
     {
         isDrawing = true;
         IsAnimating = true;
@@ -142,7 +143,8 @@ public class HandManager : MonoBehaviour
             cardDeck.HideTopFakeCard();
 
         yield return cardDeck.transform
-            .DORotate(new Vector3(deckEuler.x, deckEuler.y + 90f, deckEuler.z), FlipHalfDuration)
+            .DORotate(new Vector3(deckEuler.x, deckEuler.y + 90f, deckEuler.z), halfDuration)
+            .SetEase(Ease.Linear)
             .WaitForCompletion();
 
         cardDeck.SetVisible(false);
@@ -155,7 +157,8 @@ public class HandManager : MonoBehaviour
         card.SetHorizontal(true);
 
         yield return newCardObj.transform
-            .DORotate(deckEuler, FlipHalfDuration)
+            .DORotate(deckEuler, halfDuration)
+            .SetEase(Ease.Linear)
             .WaitForCompletion();
 
         cardDeck.SetVisible(true);
@@ -167,7 +170,7 @@ public class HandManager : MonoBehaviour
         }
 
         onFlipped?.Invoke(card);
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(halfDuration * 2f);
         isDrawing = false;
         IsAnimating = false;
     }

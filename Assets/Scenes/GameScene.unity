@@ -2596,6 +2596,7 @@ MonoBehaviour:
   spacing: 0.35
   margin: 0.9
   revealPile: {fileID: 397163687}
+  dealFlipDuration: 0.02
 --- !u!114 &1756870004
 MonoBehaviour:
   m_ObjectHideFlags: 0
