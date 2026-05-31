@@ -25,6 +25,8 @@ public class SceneAnchor : MonoBehaviour
 
     [Header("Object mode")]
     [SerializeField] private Transform target;
+    [Tooltip("Place the transform pivot at the target anchor point, ignoring this object's own size")]
+    [SerializeField] private bool anchorPivot;
 
     void Start()
     {
@@ -72,15 +74,25 @@ public class SceneAnchor : MonoBehaviour
         }
 
         Bounds targetBounds = GetBounds(target);
-        Vector2 selfSize = GetObjectSize();
         Vector2 norm = GetNorm();
 
-        // Place this object's matching edge against the target's matching edge.
-        // e.g. MiddleLeft → this object's right edge touches the target's left edge.
-        float x = Mathf.Lerp(targetBounds.min.x, targetBounds.max.x, norm.x)
-                  + (norm.x - 0.5f) * selfSize.x + offsetX;
-        float y = Mathf.Lerp(targetBounds.min.y, targetBounds.max.y, norm.y)
-                  + (norm.y - 0.5f) * selfSize.y + offsetY;
+        float x, y;
+        if (anchorPivot)
+        {
+            x = Mathf.Lerp(targetBounds.min.x, targetBounds.max.x, norm.x) + offsetX;
+            y = Mathf.Lerp(targetBounds.min.y, targetBounds.max.y, norm.y) + offsetY;
+        }
+        else
+        {
+            Vector2 selfSize = GetObjectSize();
+            Vector2 centerOffset = TryGetComponent<Collider2D>(out var col)
+                ? (Vector2)col.bounds.center - (Vector2)transform.position
+                : Vector2.zero;
+            x = Mathf.Lerp(targetBounds.min.x, targetBounds.max.x, norm.x)
+                + (norm.x - 0.5f) * selfSize.x - centerOffset.x + offsetX;
+            y = Mathf.Lerp(targetBounds.min.y, targetBounds.max.y, norm.y)
+                + (norm.y - 0.5f) * selfSize.y - centerOffset.y + offsetY;
+        }
 
         transform.position = new Vector3(x, y, transform.position.z);
     }
@@ -101,7 +113,8 @@ public class SceneAnchor : MonoBehaviour
 
     private static Bounds GetBounds(Transform t)
     {
-        Renderer[] renderers = t.GetComponentsInChildren<Renderer>(true);
+        if (t.TryGetComponent<Collider2D>(out var col)) return col.bounds;
+        Renderer[] renderers = t.GetComponentsInChildren<Renderer>();
         if (renderers.Length > 0)
         {
             Bounds b = renderers[0].bounds;
@@ -109,7 +122,6 @@ public class SceneAnchor : MonoBehaviour
                 b.Encapsulate(renderers[i].bounds);
             return b;
         }
-        if (t.TryGetComponent<Collider2D>(out var col)) return col.bounds;
         return new Bounds(t.position, Vector3.zero);
     }
 

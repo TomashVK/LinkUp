@@ -7,7 +7,6 @@ public class RevealPile : MonoBehaviour
 
     private const int VisibleCount = 3;
 
-    [SerializeField] private Transform pileAnchor;
     [SerializeField] private float spacing = 0.5f;
     [SerializeField] private float margin = 0.3f;
 
@@ -20,7 +19,7 @@ public class RevealPile : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(pileAnchor, spacing, margin, rightAnchored: true);
+        layout = new LinearCardLayout(transform, spacing, margin, rightAnchored: true);
         layout.Mirrored = true;
         layout.UseVerticalRight = true;
     }

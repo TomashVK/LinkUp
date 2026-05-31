@@ -3,8 +3,8 @@ guid: b23633d0d646247948e8746ad7dcce14
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6782996869911539672
-    second: Drop Area_0
+      213: 808123858638102295
+    second: dropArea_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Drop Area_0
+      name: dropArea_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 280
-        height: 380
+        width: 236
+        height: 320
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8201650e844fdd1a0800000000000000
-      internalID: -6782996869911539672
+      spriteID: 71f54a82e58073b00800000000000000
+      internalID: 808123858638102295
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Drop Area_0: -6782996869911539672
+      dropArea_0: 808123858638102295
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
