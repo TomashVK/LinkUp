@@ -2532,6 +2532,7 @@ GameObject:
   - component: {fileID: 1756870003}
   - component: {fileID: 1756870005}
   - component: {fileID: 1756870004}
+  - component: {fileID: 1756870006}
   m_Layer: 0
   m_Name: HandManager
   m_TagString: Untagged
@@ -2657,6 +2658,23 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 5.230376, y: 1.2785325}
   m_EdgeRadius: 0
+--- !u!114 &1756870006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756869999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e742e8e0d9c4ae59eda230842724ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneAnchor
+  mode: 0
+  anchor: 7
+  offsetX: 0
+  offsetY: 0.5
+  target: {fileID: 0}
 --- !u!1 &1834661660
 GameObject:
   m_ObjectHideFlags: 0

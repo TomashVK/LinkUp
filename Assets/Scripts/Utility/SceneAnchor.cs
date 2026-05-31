@@ -47,13 +47,19 @@ public class SceneAnchor : MonoBehaviour
         float vx = Mathf.Lerp(sv.xMin, sv.xMax, norm.x);
         float vy = Mathf.Lerp(sv.yMin, sv.yMax, norm.y);
 
-        Vector3 cornerPos = Camera.main.ViewportToWorldPoint(new Vector3(vx, vy, 10));
+        Vector3 anchorWorldPos = Camera.main.ViewportToWorldPoint(new Vector3(vx, vy, 10));
         Vector2 size = GetObjectSize();
         Vector2 pivot = new(0.5f - norm.x, 0.5f - norm.y);
 
-        transform.position = cornerPos + new Vector3(
-            pivot.x * size.x + offsetX,
-            pivot.y * size.y + offsetY,
+        // Collider center may not sit at the transform pivot — subtract that offset so
+        // the chosen edge of the collider lands on the screen anchor, not the pivot.
+        Vector2 centerOffset = TryGetComponent<Collider2D>(out var col)
+            ? (Vector2)col.bounds.center - (Vector2)transform.position
+            : Vector2.zero;
+
+        transform.position = anchorWorldPos + new Vector3(
+            pivot.x * size.x - centerOffset.x + offsetX,
+            pivot.y * size.y - centerOffset.y + offsetY,
             0);
     }
 
