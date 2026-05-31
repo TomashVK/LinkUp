@@ -23,6 +23,8 @@ public class HandManager : MonoBehaviour
     private bool isDealing = false;
     private LinearCardLayout layout;
 
+    public static bool IsAnimating { get; private set; }
+
     public int CardCount => handCards.Count;
     public IReadOnlyList<Card> HandCards => handCards;
 
@@ -49,6 +51,7 @@ public class HandManager : MonoBehaviour
 
     private void OnPointerDown(Vector2 screenPos)
     {
+        if (isDrawing || isDealing) return;
         float zDist = Camera.main.WorldToScreenPoint(cardDeck.transform.position).z;
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, zDist));
 
@@ -121,6 +124,7 @@ public class HandManager : MonoBehaviour
     private IEnumerator FlipTopCard(System.Action<Card> onFlipped)
     {
         isDrawing = true;
+        IsAnimating = true;
         int remainingBeforeDraw = cardDeck.RemainingCount;
         Vector3 spawnPos = cardDeck.GetSpawnPosition(remainingBeforeDraw);
         CardData data = cardDeck.DrawNext();
@@ -156,8 +160,10 @@ public class HandManager : MonoBehaviour
             cardDeck.HideTopFakeCard();
         }
 
-        isDrawing = false;
         onFlipped?.Invoke(card);
+        yield return new WaitForSeconds(0.25f);
+        isDrawing = false;
+        IsAnimating = false;
     }
 
     private void UpdateCardPositions()

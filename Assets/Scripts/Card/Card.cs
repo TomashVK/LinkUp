@@ -106,7 +106,7 @@ public class Card : MonoBehaviour
 
     private void OnPointerDown(Vector2 screenPos)
     {
-        if (isDragging) return;
+        if (isDragging || HandManager.IsAnimating) return;
 
         Vector3 worldPos = ScreenToWorld(screenPos);
         Collider2D[] hits = Physics2D.OverlapPointAll(worldPos);
