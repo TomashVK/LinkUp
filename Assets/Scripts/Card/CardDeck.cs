@@ -127,7 +127,7 @@ public class CardDeck : MonoBehaviour
         string[] names = { "Apple", "Banana", "Cherry", "Dog", "Elephant", "Flower", "Guitar", "House", "Ice Cream", "Jellyfish" };
         var deck = new CardData[names.Length];
         for (int i = 0, n = names.Length; i < n; i++)
-            deck[i] = new CardData { id = i + 1, cardName = names[i] };
+            deck[i] = new CardData { cardName = names[i] };
         return deck;
     }
 }

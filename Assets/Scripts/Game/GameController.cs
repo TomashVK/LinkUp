@@ -16,7 +16,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private TMP_Text moveCountText;
     [SerializeField] private GameObject winPanel;
     [SerializeField] private TMP_Text winStarsText;
-    [SerializeField] private GameObject losePanel;
 
     private ConnectionGraph graph;
     private LevelDefinition level;
@@ -58,7 +57,6 @@ public class GameController : MonoBehaviour
         RefreshMoveHUD();
 
         if (winPanel != null) winPanel.SetActive(false);
-        if (losePanel != null) losePanel.SetActive(false);
         if (continuePanel != null) continuePanel.gameObject.SetActive(false);
 
         var allCards = new[] { MakeCardData(level.activeCard) }
@@ -79,7 +77,7 @@ public class GameController : MonoBehaviour
 
     private void CheckWin()
     {
-        if (handManager.CardCount == 0) { ShowWin(); return; }
+        if (handManager.CardCount == 0) ShowWin();
     }
 
     private void ShowWin()
@@ -90,11 +88,6 @@ public class GameController : MonoBehaviour
         if (winStarsText != null)
             winStarsText.text = new string('★', stars) + new string('☆', 3 - stars);
         if (winPanel != null) winPanel.SetActive(true);
-    }
-
-    private void ShowLose()
-    {
-        if (losePanel != null) losePanel.SetActive(true);
     }
 
     private void OnMovesExhausted()

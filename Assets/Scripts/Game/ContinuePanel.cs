@@ -8,16 +8,6 @@ public class ContinuePanel : MonoBehaviour
     [SerializeField] private int movesPerContinue = 5;
     [SerializeField] private int coinCost = 100;
 
-    private void OnEnable()
-    {
-        MoveCounter.MovesExhausted += Show;
-    }
-
-    private void OnDisable()
-    {
-        MoveCounter.MovesExhausted -= Show;
-    }
-
     public void Show()
     {
         if (coinBalanceText != null && CoinService.Instance != null)
