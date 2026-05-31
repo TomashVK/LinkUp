@@ -16,7 +16,7 @@ public class Card : MonoBehaviour
 
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalVisual;
-    [SerializeField] private float dragExtraOffset = 0f;
+
 
     public int CurrentSortingOrder { get; private set; }
     public bool IsDragging => isDragging;
@@ -68,6 +68,9 @@ public class Card : MonoBehaviour
         horizontalVisual.gameObject.SetActive(isHorizontal);
         verticalVisual.gameObject.SetActive(!isHorizontal);
     }
+
+    public void SetInteractable(bool interactable) => cardCollider.enabled = interactable;
+    public void SetDraggable(bool draggable) => cardCollider.enabled = draggable;
 
     public void SetSortingOrder(int order)
     {
@@ -122,7 +125,7 @@ public class Card : MonoBehaviour
         if (topCard != this) return;
 
         startPosition = transform.position;
-        touchOffset = new Vector3(transform.position.x - worldPos.x, cardCollider.bounds.extents.y + dragExtraOffset, 0f);
+        touchOffset = new Vector3(transform.position.x - worldPos.x, transform.position.y - worldPos.y, 0f);
         restingSortingOrder = CurrentSortingOrder;
         isDragging = true;
         PointerInputService.Instance.IsCardDragging = true;
@@ -145,14 +148,31 @@ public class Card : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapPointAll(transform.position);
         cardCollider.enabled = true;
 
+        Debug.Log($"[Card.HandleDrop] '{Data?.gameId}' dropped at {transform.position}. Hits: {hits.Length} ({string.Join(", ", System.Array.ConvertAll(hits, h => h.name))})");
+
+        // Try ActiveCardSlot first, then fall back to any other ICardDrop.
+        ICardDrop target = null;
         foreach (Collider2D hit in hits)
+            if (hit.TryGetComponent(out ActiveCardSlot slot)) { target = slot; break; }
+
+        if (target == null)
+            foreach (Collider2D hit in hits)
+                if (hit.TryGetComponent(out ICardDrop drop)) { target = drop; break; }
+
+        if (target == null)
         {
-            if (hit.TryGetComponent(out ICardDrop cardDrop))
-            {
-                cardDrop.OnCardDrop(this);
-                Dropped?.Invoke(this);
-                return;
-            }
+            Debug.Log($"[Card.HandleDrop] No ICardDrop target found — snapping back.");
+            StartCoroutine(SnapBackWithNudge());
+            return;
+        }
+
+        bool accepted = target.OnCardDrop(this);
+        Debug.Log($"[Card.HandleDrop] Target '{((MonoBehaviour)target).name}' returned accepted={accepted}. Card pos after={transform.position}, sortingOrder={CurrentSortingOrder}");
+
+        if (accepted)
+        {
+            Dropped?.Invoke(this);
+            return;
         }
 
         StartCoroutine(SnapBackWithNudge());

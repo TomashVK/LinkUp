@@ -6,7 +6,7 @@ using Unity.Mathematics;
 public class HandSplineAnchor : MonoBehaviour
 {
     [SerializeField][Range(0f, 0.45f)] private float horizontalPadding = 0.05f;
-    [SerializeField][Range(0f, 1f)]    private float verticalPosition  = 0.1f;
+    [SerializeField][Range(0f, 1f)] private float verticalPosition = 0.1f;
 
     private SplineContainer splineContainer;
     private float3[] originalPositions;
@@ -34,21 +34,21 @@ public class HandSplineAnchor : MonoBehaviour
         float depth = -cam.transform.position.z;
 
         Rect sv = SafeAreaHelper.GetViewportRect();
-        float safeLeft   = sv.xMin;
-        float safeRight  = sv.xMax;
+        float safeLeft = sv.xMin;
+        float safeRight = sv.xMax;
         float safeBottom = sv.yMin;
-        float safeTop    = sv.yMax;
+        float safeTop = sv.yMax;
 
-        Vector3 worldSafeLeft  = cam.ViewportToWorldPoint(new Vector3(safeLeft,  0f, depth));
+        Vector3 worldSafeLeft = cam.ViewportToWorldPoint(new Vector3(safeLeft, 0f, depth));
         Vector3 worldSafeRight = cam.ViewportToWorldPoint(new Vector3(safeRight, 0f, depth));
         float safeWorldWidth = worldSafeRight.x - worldSafeLeft.x;
 
-        float leftX  = worldSafeLeft.x  + safeWorldWidth * horizontalPadding;
+        float leftX = worldSafeLeft.x + safeWorldWidth * horizontalPadding;
         float rightX = worldSafeRight.x - safeWorldWidth * horizontalPadding;
 
         float safeWorldBottom = cam.ViewportToWorldPoint(new Vector3(0f, safeBottom, depth)).y;
-        float safeWorldTop    = cam.ViewportToWorldPoint(new Vector3(0f, safeTop,    depth)).y;
-        float targetBaseY     = Mathf.Lerp(safeWorldBottom, safeWorldTop, verticalPosition);
+        float safeWorldTop = cam.ViewportToWorldPoint(new Vector3(0f, safeTop, depth)).y;
+        float targetBaseY = Mathf.Lerp(safeWorldBottom, safeWorldTop, verticalPosition);
 
         float origMinX = float.MaxValue;
         float origMaxX = float.MinValue;
@@ -62,13 +62,13 @@ public class HandSplineAnchor : MonoBehaviour
         }
 
         float origWidth = origMaxX - origMinX;
-        float yShift    = targetBaseY - origMinY;
+        float yShift = targetBaseY - origMinY;
 
         Spline spline = splineContainer.Spline;
         for (int i = 0; i < originalPositions.Length; i++)
         {
             float3 orig = originalPositions[i];
-            float tX   = origWidth > 0f ? (orig.x - origMinX) / origWidth : 0.5f;
+            float tX = origWidth > 0f ? (orig.x - origMinX) / origWidth : 0.5f;
             float newX = Mathf.Lerp(leftX, rightX, tX);
             float newY = orig.y + yShift;
 

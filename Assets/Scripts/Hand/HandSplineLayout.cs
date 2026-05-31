@@ -5,23 +5,23 @@ using UnityEngine.Splines;
 
 public sealed class HandSplineLayout
 {
-    private readonly SplineContainer _splineContainer;
-    private readonly float _spacing;
+    private readonly SplineContainer splineContainer;
+    private readonly float spacing;
 
     public float ScrollOffset { get; set; }
 
     public HandSplineLayout(SplineContainer splineContainer, float spacing)
     {
-        _splineContainer = splineContainer;
-        _spacing = spacing;
+        this.splineContainer = splineContainer;
+        this.spacing = spacing;
     }
 
     public bool IsScrollable(int cardCount) =>
-        cardCount > 1 && (cardCount - 1) * _spacing > 1f;
+        cardCount > 1 && (cardCount - 1) * spacing > 1f;
 
     public float ClampOffset(float offset, int cardCount)
     {
-        float halfSpan  = (cardCount - 1) * _spacing / 2f;
+        float halfSpan = (cardCount - 1) * spacing / 2f;
         float minOffset = halfSpan - 0.5f;
         float maxOffset = 0.5f - halfSpan;
         return minOffset <= maxOffset
@@ -33,7 +33,7 @@ public sealed class HandSplineLayout
     {
         Camera cam = Camera.main;
         if (cam == null) return 0f;
-        Spline spline = _splineContainer.Spline;
+        Spline spline = splineContainer.Spline;
         const float dt = 0.01f;
         float refT = Mathf.Clamp(0.5f + ScrollOffset, 0f, 1f - dt);
         float screenDist = cam.WorldToScreenPoint(spline.EvaluatePosition(refT + dt)).x
@@ -49,19 +49,19 @@ public sealed class HandSplineLayout
         if (!IsScrollable(cardCount)) ScrollOffset = 0f;
         ScrollOffset = ClampOffset(ScrollOffset, cardCount);
 
-        float firstT = 0.5f + ScrollOffset - (cardCount - 1) * _spacing / 2f;
-        Spline spline = _splineContainer.Spline;
+        float firstT = 0.5f + ScrollOffset - (cardCount - 1) * spacing / 2f;
+        Spline spline = splineContainer.Spline;
 
         for (int i = 0; i < cardCount; i++)
         {
             cards[i].SetHorizontal(i == cardCount - 1);
             if (cards[i].IsDragging) continue;
 
-            float t = firstT + i * _spacing;
-            Vector3 pos     = spline.EvaluatePosition(t);
+            float t = firstT + i * spacing;
+            Vector3 pos = spline.EvaluatePosition(t);
             Vector3 forward = spline.EvaluateTangent(t);
-            Vector3 up      = spline.EvaluateUpVector(t);
-            Quaternion rot  = Quaternion.LookRotation(up, Vector3.Cross(up, forward).normalized);
+            Vector3 up = spline.EvaluateUpVector(t);
+            Quaternion rot = Quaternion.LookRotation(up, Vector3.Cross(up, forward).normalized);
 
             if (isDragging)
             {

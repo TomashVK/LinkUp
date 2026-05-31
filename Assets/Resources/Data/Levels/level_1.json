@@ -1,0 +1,35 @@
+[
+  {
+    "activeCard": "apple",
+    "hand": ["nut", "seed", "wolf"],
+    "deck": ["acorn", "fox", "fish", "frog", "forest", "berry", "jam"],
+    "maxMoves": 25,
+    "threeStarMoves": 15,
+    "twoStarMoves": 20,
+    "optimalPath": ["apple", "nut", "acorn", "fox", "fish", "frog", "wolf", "forest", "berry", "seed"],
+    "pathDescription": "apple → nut → [draw acorn] → acorn → [draw fox] → fox → [draw fish] → fish → [draw frog] → frog → wolf → [draw forest] → forest → [draw berry] → berry → seed",
+    "worstPath": "apple → nut → acorn → fox → fish → frog → wolf → forest → berry → seed → jam  (7 draws, 25 moves)"
+  },
+  {
+    "activeCard": "berry",
+    "hand": ["acorn", "apple", "fish"],
+    "deck": ["nut", "seed", "jam", "fox", "frog", "wolf", "forest"],
+    "maxMoves": 21,
+    "threeStarMoves": 11,
+    "twoStarMoves": 16,
+    "optimalPath": ["berry", "apple", "nut", "seed", "jam", "acorn", "fox", "fish"],
+    "pathDescription": "berry → apple → [draw nut] → nut → [draw seed] → seed → [draw jam] → jam → acorn → [draw fox] → fox → fish",
+    "worstPath": "berry → apple → nut → seed → jam → acorn → fox → fish → frog → wolf → forest  (7 draws, 21 moves)"
+  },
+  {
+    "activeCard": "acorn",
+    "hand": ["apple", "fox", "seed"],
+    "deck": ["fish", "frog", "wolf", "forest", "berry", "nut", "jam"],
+    "maxMoves": 27,
+    "threeStarMoves": 17,
+    "twoStarMoves": 22,
+    "optimalPath": ["acorn", "fox", "fish", "frog", "wolf", "forest", "berry", "nut", "jam", "seed", "apple"],
+    "pathDescription": "acorn → fox → [draw fish] → fish → [draw frog] → frog → [draw wolf] → wolf → [draw forest] → forest → [draw berry] → berry → [draw nut] → nut → [draw jam] → jam → seed → apple",
+    "worstPath": "acorn → fox → fish → frog → wolf → forest → berry → nut → jam → seed → apple  (7 draws, 27 moves)"
+  }
+]

@@ -1,4 +1,4 @@
 public interface ICardDrop
 {
-    public void OnCardDrop(Card card);
+    bool OnCardDrop(Card card); // true = accepted, false = snap back
 }
