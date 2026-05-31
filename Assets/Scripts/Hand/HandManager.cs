@@ -112,7 +112,10 @@ public class HandManager : MonoBehaviour
         if (MoveCounter.IsOutOfMoves) return;
         if (!cardDeck.HasCards)
         {
-            cardDeck.RestartDeck();
+            var pileData = new List<CardData>();
+            foreach (Card c in revealPile.PileCards) pileData.Add(c.Data);
+            revealPile.ClearPile();
+            cardDeck.RestartDeck(pileData);
             DeckRestarted?.Invoke();
             return;
         }

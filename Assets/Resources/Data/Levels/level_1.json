@@ -1,13 +1,13 @@
 [
   {
-    "activeCard": "milk",
-    "hand": ["deer", "rabbit", "wolf", "cave", "log", "forest", "worm", "cat", "cow", "grass", "mouse", "bear", "fish", "mushroom", "soil", "leaf", "bush", "cheese", "tree"],
-    "deck": ["bird"],
-    "maxMoves": 23,
-    "threeStarMoves": 21,
-    "twoStarMoves": 22,
-    "optimalPath": ["milk", "cheese", "cow", "wolf", "tree", "mushroom", "worm", "soil", "mouse", "cat", "bird", "fish", "bear", "log", "forest", "bush", "rabbit", "cave", "deer", "leaf", "grass"],
-    "pathDescription": "milk → cheese → cow → wolf → tree → mushroom → worm → soil → mouse → cat → [draw bird] → bird → fish → bear → log → forest → bush → rabbit → cave → deer → leaf → grass",
-    "worstPath": "milk → cheese → cow → wolf → tree → mushroom → worm → soil → mouse → cat → bird → fish → bear → log → forest → bush → rabbit → cave → deer → leaf → grass  (1 draws, 23 moves)"
+    "activeCard": "leaf",
+    "hand": ["nut", "seed"],
+    "deck": ["tree", "hay", "apple", "worm", "soil", "grass", "mushroom", "rabbit"],
+    "maxMoves": 60,
+    "threeStarMoves": 4,
+    "twoStarMoves": 5,
+    "optimalPath": ["leaf", "tree", "seed", "nut"],
+    "pathDescription": "leaf → [draw tree] → tree → seed → nut",
+    "worstPath": "leaf → tree → seed → nut → hay → apple → worm → soil → grass → mushroom → rabbit  (8 draws, 6 moves)"
   }
 ]

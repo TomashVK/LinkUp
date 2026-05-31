@@ -11,6 +11,7 @@ public class CardDeck : MonoBehaviour
 
     private int drawIndex;
     private Vector3 originalPosition;
+    private CardData[] originalCards;
 
     public bool HasCards => drawIndex < cards.Length;
     public bool IsEmpty => !HasCards;
@@ -22,6 +23,7 @@ public class CardDeck : MonoBehaviour
         originalPosition = transform.position;
         if (cards == null || cards.Length == 0)
             cards = CreateFakeDeck();
+        originalCards = cards;
         RefreshCountText();
     }
 
@@ -82,19 +84,26 @@ public class CardDeck : MonoBehaviour
         }
     }
 
-    public void RestartDeck()
+    public void RestartDeck(IEnumerable<CardData> recycleFromPile)
     {
+        var recycleSet = new HashSet<CardData>(recycleFromPile);
+        var drawable = new List<CardData>();
+        foreach (CardData c in originalCards)
+            if (recycleSet.Contains(c))
+                drawable.Add(c);
+        cards = drawable.ToArray();
         drawIndex = 0;
-        SetVisible(true);
+        SetVisible(HasCards);
         if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
         ResetFakeCards();
-        transform.position = GetCurrentTopPosition();
+        if (HasCards) transform.position = GetCurrentTopPosition();
         RefreshCountText();
     }
 
     public void SetCards(List<CardData> newCards)
     {
         cards = newCards.ToArray();
+        originalCards = cards;
         drawIndex = 0;
         ResetFakeCards();
         if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
@@ -104,8 +113,11 @@ public class CardDeck : MonoBehaviour
     private void ResetFakeCards()
     {
         if (fakeDeckCards == null) return;
-        foreach (GameObject fake in fakeDeckCards)
-            if (fake != null) fake.SetActive(true);
+        int toShow = Mathf.Min(cards.Length, fakeDeckCards.Length);
+        int hideCount = fakeDeckCards.Length - toShow;
+        for (int i = 0; i < fakeDeckCards.Length; i++)
+            if (fakeDeckCards[i] != null)
+                fakeDeckCards[i].SetActive(i >= hideCount);
     }
 
     private void RefreshCountText()

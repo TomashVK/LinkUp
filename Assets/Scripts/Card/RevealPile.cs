@@ -16,6 +16,7 @@ public class RevealPile : MonoBehaviour
 
     public bool HasCards => pileCards.Count > 0;
     public bool IsCardInPile(Card card) => pileCards.Contains(card);
+    public IReadOnlyList<Card> PileCards => pileCards;
 
     private void Awake()
     {
@@ -32,6 +33,13 @@ public class RevealPile : MonoBehaviour
     {
         Card.Dropped -= OnCardDropped;
         Card.SnapBacked -= OnCardSnapBacked;
+    }
+
+    public void ClearPile()
+    {
+        foreach (Card card in pileCards)
+            if (card != null) Destroy(card.gameObject);
+        pileCards.Clear();
     }
 
     public void ReceiveCard(Card card)
