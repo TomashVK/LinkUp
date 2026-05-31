@@ -9,6 +9,7 @@ public class RevealPile : MonoBehaviour
 
     [SerializeField] private Transform pileAnchor;
     [SerializeField] private float spacing = 0.5f;
+    [SerializeField] private float margin = 0.3f;
 
     private readonly List<Card> pileCards = new();
     private LinearCardLayout layout;
@@ -18,7 +19,7 @@ public class RevealPile : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(pileAnchor, spacing);
+        layout = new LinearCardLayout(pileAnchor, spacing, margin);
     }
 
     private void OnEnable()

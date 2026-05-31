@@ -11,8 +11,8 @@ public class HandManager : MonoBehaviour
     [SerializeField] private int maxHandSize;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private CardDeck cardDeck;
-    [SerializeField] private Transform handAnchor;
     [SerializeField] private float spacing = 1.2f;
+    [SerializeField] private float margin = 0.5f;
     [SerializeField] private RevealPile revealPile;
 
     private const float FlipHalfDuration = 0.15f;
@@ -22,6 +22,7 @@ public class HandManager : MonoBehaviour
     private bool isDrawing = false;
     private bool isDealing = false;
     private LinearCardLayout layout;
+    private float handScrollOffset;
 
     public static bool IsAnimating { get; private set; }
 
@@ -30,7 +31,7 @@ public class HandManager : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(handAnchor, spacing);
+        layout = new LinearCardLayout(transform, spacing, margin, centerOnSafeArea: true);
     }
 
     private void OnEnable()
@@ -39,6 +40,7 @@ public class HandManager : MonoBehaviour
         Card.Dropped += OnCardDropped;
         Card.SnapBacked += OnCardSnapBacked;
         Card.DragPickedUp += OnCardDragPickedUp;
+        HandSwipeArea.Scrolled += OnHandScrolled;
     }
 
     private void OnDisable()
@@ -47,6 +49,7 @@ public class HandManager : MonoBehaviour
         Card.Dropped -= OnCardDropped;
         Card.SnapBacked -= OnCardSnapBacked;
         Card.DragPickedUp -= OnCardDragPickedUp;
+        HandSwipeArea.Scrolled -= OnHandScrolled;
     }
 
     private void OnPointerDown(Vector2 screenPos)
@@ -166,8 +169,16 @@ public class HandManager : MonoBehaviour
         IsAnimating = false;
     }
 
+    private void OnHandScrolled(float delta)
+    {
+        layout.ScrollOffset = handScrollOffset + delta;
+        layout.PlaceCards(handCards, instant: true);
+        handScrollOffset = layout.ScrollOffset; // clamped value written back by PlaceCards
+    }
+
     private void UpdateCardPositions()
     {
+        layout.ScrollOffset = handScrollOffset;
         layout.PlaceCards(handCards);
     }
 }
