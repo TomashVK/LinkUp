@@ -15,7 +15,8 @@ public class Card : MonoBehaviour
     private const int DragSortingOrder = 999;
 
     [SerializeField] private TMP_Text horizontalVisual;
-    [SerializeField] private TMP_Text verticalVisual;
+    [SerializeField] private TMP_Text verticalLeftVisual;
+    [SerializeField] private TMP_Text verticalRightVisual;
 
 
     public int CurrentSortingOrder { get; private set; }
@@ -25,6 +26,7 @@ public class Card : MonoBehaviour
 
     private bool isDragging;
     private bool restingHorizontal;
+    private bool useRightVertical;
     private Vector3 touchOffset;
     private Vector3 startPosition;
     private Collider2D cardCollider;
@@ -62,11 +64,17 @@ public class Card : MonoBehaviour
         if (!isDragging) ApplyOrientation(isHorizontal);
     }
 
+    public void SetVerticalRight(bool useRight)
+    {
+        useRightVertical = useRight;
+        if (!isDragging && !restingHorizontal) ApplyOrientation(false);
+    }
+
     private void ApplyOrientation(bool isHorizontal)
     {
-        if (horizontalVisual == null || verticalVisual == null) return;
-        horizontalVisual.gameObject.SetActive(isHorizontal);
-        verticalVisual.gameObject.SetActive(!isHorizontal);
+        if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(isHorizontal);
+        if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal && !useRightVertical);
+        if (verticalRightVisual != null) verticalRightVisual.gameObject.SetActive(!isHorizontal && useRightVertical);
     }
 
     public void SetInteractable(bool interactable) => cardCollider.enabled = interactable;

@@ -20,7 +20,9 @@ public class RevealPile : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(pileAnchor, spacing, margin);
+        layout = new LinearCardLayout(pileAnchor, spacing, margin, rightAnchored: true);
+        layout.Mirrored = true;
+        layout.UseVerticalRight = true;
     }
 
     private void OnEnable()
