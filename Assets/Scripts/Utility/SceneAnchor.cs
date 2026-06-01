@@ -31,15 +31,23 @@ public class SceneAnchor : MonoBehaviour
     void Start()
     {
         if (mode == AnchorMode.Object)
-            StartCoroutine(ApplyObjectAnchorNextFrame());
+            StartCoroutine(ApplyObjectAnchorDelayed());
         else
             ApplySceneAnchor();
     }
 
-    private System.Collections.IEnumerator ApplyObjectAnchorNextFrame()
+    private System.Collections.IEnumerator ApplyObjectAnchorDelayed()
     {
-        yield return null;
+        int frames = GetDelay();
+        for (int i = 0; i < frames; i++) yield return null;
         ApplyObjectAnchor();
+    }
+
+    private int GetDelay(int maxDepth = 10)
+    {
+        if (maxDepth <= 0 || mode == AnchorMode.Scene) return 0;
+        if (target == null || !target.TryGetComponent<SceneAnchor>(out var sa)) return 1;
+        return 1 + sa.GetDelay(maxDepth - 1);
     }
 
     private void ApplySceneAnchor()
