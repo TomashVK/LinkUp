@@ -156,10 +156,7 @@ public class HandManager : MonoBehaviour
         card.Init(data);
         card.SetHorizontal(true);
 
-        yield return newCardObj.transform
-            .DORotate(deckEuler, halfDuration)
-            .SetEase(Ease.Linear)
-            .WaitForCompletion();
+        onFlipped?.Invoke(card);
 
         cardDeck.SetVisible(true);
         cardDeck.OnCardDrawn(remainingBeforeDraw);
@@ -169,7 +166,6 @@ public class HandManager : MonoBehaviour
             cardDeck.HideTopFakeCard();
         }
 
-        onFlipped?.Invoke(card);
         yield return new WaitForSeconds(halfDuration * 2f);
         isDrawing = false;
         IsAnimating = false;

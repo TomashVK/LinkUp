@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
@@ -15,7 +16,7 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
 
     public void ReceiveCard(Card card)
     {
-        PlaceCard(card);
+        PlaceCard(card, animate: true);
     }
 
     public bool OnCardDrop(Card card)
@@ -43,13 +44,19 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         return true;
     }
 
-    private void PlaceCard(Card card)
+    private void PlaceCard(Card card, bool animate = false)
     {
         if (currentCard != null)
             Destroy(currentCard.gameObject);
 
         activeCardId = card.Data.gameId;
-        card.transform.position = transform.position;
+        if (animate)
+        {
+            card.transform.DOMove(transform.position, 0.25f);
+            card.transform.DORotate(transform.eulerAngles, 0.25f);
+        }
+        else
+            card.transform.position = transform.position;
         card.SetSortingOrder(0);
         card.SetInteractable(false);
         currentCard = card;
