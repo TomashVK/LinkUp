@@ -17,7 +17,6 @@ public class HandManager : MonoBehaviour
     [SerializeField] private float dealFlipDuration = 0.05f;
 
     private const float FlipHalfDuration = 0.15f;
-    private static readonly WaitForSeconds WaitForDeckReveal = new(0.25f);
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -90,12 +89,12 @@ public class HandManager : MonoBehaviour
     public IEnumerator DealInitial(int handSize, ActiveCardSlot activeSlot)
     {
         isDealing = true;
-        yield return StartCoroutine(FlipTopCard(activeSlot.ReceiveCard, dealFlipDuration));
+        yield return StartCoroutine(FlipTopCard(activeSlot.ReceiveCard, dealFlipDuration, dealFlipDuration));
         for (int i = 0; i < handSize; i++)
             yield return StartCoroutine(FlipTopCard(card => {
                 handCards.Add(card);
                 UpdateCardPositions();
-            }, dealFlipDuration));
+            }, dealFlipDuration, dealFlipDuration));
         isDealing = false;
     }
 
@@ -129,7 +128,7 @@ public class HandManager : MonoBehaviour
         yield return StartCoroutine(FlipTopCard(card => revealPile.ReceiveCard(card)));
     }
 
-    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = FlipHalfDuration)
+    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = FlipHalfDuration, float deckRevealDelay = 0.25f)
     {
         isDrawing = true;
         IsAnimating = true;
@@ -161,14 +160,10 @@ public class HandManager : MonoBehaviour
         card.Init(data);
         card.SetHorizontal(true);
 
-        yield return newCardObj.transform
-            .DOScale(new Vector3(1.3f, 1.3f, 1.3f), halfDuration)
-            .SetEase(Ease.Linear)
-            .WaitForCompletion();
-
         onFlipped?.Invoke(card);
+        newCardObj.transform.DOScale(new Vector3(1.3f, 1.3f, 1.3f), halfDuration).SetEase(Ease.Linear);
 
-        yield return WaitForDeckReveal;
+        yield return new WaitForSeconds(deckRevealDelay);
         if (backgroundSpawn != null) Destroy(backgroundSpawn);
         cardDeck.SetVisible(true);
         cardDeck.UpdateDeckVisual();
