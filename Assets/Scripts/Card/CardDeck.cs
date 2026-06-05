@@ -5,22 +5,21 @@ using UnityEngine;
 public class CardDeck : MonoBehaviour
 {
     [SerializeField] private CardData[] cards;
-    [SerializeField] private GameObject[] fakeDeckCards;
+    [SerializeField] private SpriteRenderer deckVisual;
+    [SerializeField] private Sprite[] deckVisualSprites;
     [SerializeField] private GameObject emptyStateVisual;
     [SerializeField] private TMP_Text deckCountText;
+    [SerializeField] private Transform spawnContainer;
 
     private int drawIndex;
-    private Vector3 originalPosition;
     private CardData[] originalCards;
 
     public bool HasCards => drawIndex < cards.Length;
     public bool IsEmpty => !HasCards;
     public int RemainingCount => cards.Length - drawIndex;
-    public int FakeCardCount => fakeDeckCards != null ? fakeDeckCards.Length : 0;
 
     private void Awake()
     {
-        originalPosition = transform.position;
         if (cards == null || cards.Length == 0)
             cards = CreateFakeDeck();
         originalCards = cards;
@@ -35,53 +34,47 @@ public class CardDeck : MonoBehaviour
         return data;
     }
 
-    public void HideTopFakeCard()
+    public void HideDeckVisual()
     {
-        if (fakeDeckCards == null) return;
-        foreach (GameObject fake in fakeDeckCards)
-            if (fake != null && fake.activeSelf)
+        if (deckVisual != null)
+            deckVisual.gameObject.SetActive(false);
+    }
+
+    public Vector3 GetSpawnPosition()
+    {
+        if (deckVisual != null && deckVisualSprites != null && deckVisualSprites.Length > 0 && deckVisualSprites[0] != null)
+        {
+            Bounds b = deckVisual.bounds;
+            float singleCardHalfH = deckVisualSprites[0].bounds.extents.y * deckVisual.transform.lossyScale.y;
+            return new Vector3(b.center.x, b.max.y - singleCardHalfH, b.center.z);
+        }
+        if (deckVisual != null)
+            return deckVisual.transform.position;
+        return transform.position;
+    }
+
+    public void UpdateDeckVisual()
+    {
+        int remaining = RemainingCount;
+        bool hasCards = remaining > 0;
+
+        if (deckVisual != null)
+        {
+            deckVisual.gameObject.SetActive(hasCards);
+            if (hasCards && deckVisualSprites != null && deckVisualSprites.Length > 0)
             {
-                fake.SetActive(false);
-                return;
+                int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
+                deckVisual.sprite = deckVisualSprites[level];
             }
-    }
-
-    public Vector3 GetCurrentTopPosition()
-    {
-        if (fakeDeckCards != null)
-            foreach (GameObject fake in fakeDeckCards)
-                if (fake != null && fake.activeSelf)
-                    return fake.transform.position;
-        return transform.position;
-    }
-
-    public Vector3 GetSpawnPosition(int remainingBeforeDraw)
-    {
-        if (fakeDeckCards != null && fakeDeckCards.Length > 0
-            && remainingBeforeDraw <= fakeDeckCards.Length)
-        {
-            int idx = fakeDeckCards.Length - remainingBeforeDraw;
-            if (fakeDeckCards[idx] != null)
-                return fakeDeckCards[idx].transform.position;
-        }
-        return transform.position;
-    }
-
-    public void OnCardDrawn(int remainingBeforeDraw)
-    {
-        if (fakeDeckCards != null && fakeDeckCards.Length > 0
-            && remainingBeforeDraw <= fakeDeckCards.Length)
-        {
-            int idx = fakeDeckCards.Length - remainingBeforeDraw;
-            if (fakeDeckCards[idx] != null)
-                fakeDeckCards[idx].SetActive(false);
         }
 
-        if (!HasCards)
-        {
-            SetVisible(false);
-            if (emptyStateVisual != null) emptyStateVisual.SetActive(true);
-        }
+        if (hasCards && deckVisual != null)
+            transform.position = GetSpawnPosition();
+
+        SetVisible(hasCards);
+        if (!hasCards && emptyStateVisual != null)
+            emptyStateVisual.SetActive(true);
+        RefreshCountText();
     }
 
     public void RestartDeck(IEnumerable<CardData> recycleFromPile)
@@ -93,10 +86,8 @@ public class CardDeck : MonoBehaviour
                 drawable.Add(c);
         cards = drawable.ToArray();
         drawIndex = 0;
-        SetVisible(HasCards);
         if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
-        ResetFakeCards();
-        if (HasCards) transform.position = GetCurrentTopPosition();
+        UpdateDeckVisual();
         RefreshCountText();
     }
 
@@ -105,19 +96,32 @@ public class CardDeck : MonoBehaviour
         cards = newCards.ToArray();
         originalCards = cards;
         drawIndex = 0;
-        ResetFakeCards();
         if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
+        UpdateDeckVisual();
         RefreshCountText();
     }
 
-    private void ResetFakeCards()
+    public void SetCountDisplay(int count)
     {
-        if (fakeDeckCards == null) return;
-        int toShow = Mathf.Min(cards.Length, fakeDeckCards.Length);
-        int hideCount = fakeDeckCards.Length - toShow;
-        for (int i = 0; i < fakeDeckCards.Length; i++)
-            if (fakeDeckCards[i] != null)
-                fakeDeckCards[i].SetActive(i >= hideCount);
+        if (deckCountText != null)
+            deckCountText.text = count.ToString();
+    }
+
+    public GameObject CreateBackgroundSpawn()
+    {
+        if (spawnContainer == null || RemainingCount <= 0) return null;
+
+        GameObject bg = Instantiate(spawnContainer.gameObject, transform.parent);
+        bg.transform.SetPositionAndRotation(spawnContainer.position, Quaternion.identity);
+
+        foreach (SpriteRenderer sr in bg.GetComponentsInChildren<SpriteRenderer>(true))
+            sr.sortingOrder = -5;
+        foreach (Canvas c in bg.GetComponentsInChildren<Canvas>(true))
+            c.sortingOrder = -5;
+        foreach (TMP_Text t in bg.GetComponentsInChildren<TMP_Text>(true))
+            t.text = RemainingCount.ToString();
+
+        return bg;
     }
 
     private void RefreshCountText()

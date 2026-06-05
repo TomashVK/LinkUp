@@ -17,6 +17,7 @@ public class HandManager : MonoBehaviour
     [SerializeField] private float dealFlipDuration = 0.05f;
 
     private const float FlipHalfDuration = 0.15f;
+    private static readonly WaitForSeconds WaitForDeckReveal = new(0.25f);
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -133,40 +134,45 @@ public class HandManager : MonoBehaviour
         isDrawing = true;
         IsAnimating = true;
         int remainingBeforeDraw = cardDeck.RemainingCount;
-        Vector3 spawnPos = cardDeck.GetSpawnPosition(remainingBeforeDraw);
+        Vector3 spawnPos = cardDeck.GetSpawnPosition();
         CardData data = cardDeck.DrawNext();
+        cardDeck.SetCountDisplay(remainingBeforeDraw);
         Vector3 deckEuler = cardDeck.transform.eulerAngles;
+        Vector3 deckOriginalScale = cardDeck.transform.localScale;
 
         cardDeck.transform.position = spawnPos;
 
         if (remainingBeforeDraw == 1)
-            cardDeck.HideTopFakeCard();
+            cardDeck.HideDeckVisual();
+
+        GameObject backgroundSpawn = cardDeck.CreateBackgroundSpawn();
 
         yield return cardDeck.transform
-            .DORotate(new Vector3(deckEuler.x, deckEuler.y + 90f, deckEuler.z), halfDuration)
+            .DOScaleX(0f, halfDuration)
             .SetEase(Ease.Linear)
             .WaitForCompletion();
 
         cardDeck.SetVisible(false);
-        cardDeck.transform.rotation = Quaternion.Euler(deckEuler);
+        cardDeck.transform.localScale = deckOriginalScale;
 
-        Quaternion cardStartRot = Quaternion.Euler(deckEuler.x, deckEuler.y + 90f, deckEuler.z);
-        GameObject newCardObj = Instantiate(cardPrefab, spawnPos, cardStartRot);
+        GameObject newCardObj = Instantiate(cardPrefab, spawnPos, Quaternion.Euler(deckEuler));
+        newCardObj.transform.localScale = new Vector3(0f, 1.3f, 1.3f);
         Card card = newCardObj.GetComponent<Card>();
         card.Init(data);
         card.SetHorizontal(true);
 
+        yield return newCardObj.transform
+            .DOScale(new Vector3(1.3f, 1.3f, 1.3f), halfDuration)
+            .SetEase(Ease.Linear)
+            .WaitForCompletion();
+
         onFlipped?.Invoke(card);
 
+        yield return WaitForDeckReveal;
+        if (backgroundSpawn != null) Destroy(backgroundSpawn);
         cardDeck.SetVisible(true);
-        cardDeck.OnCardDrawn(remainingBeforeDraw);
-        if (cardDeck.gameObject.activeSelf && remainingBeforeDraw <= cardDeck.FakeCardCount + 1)
-        {
-            cardDeck.transform.position = cardDeck.GetCurrentTopPosition();
-            cardDeck.HideTopFakeCard();
-        }
+        cardDeck.UpdateDeckVisual();
 
-        yield return new WaitForSeconds(halfDuration * 2f);
         isDrawing = false;
         IsAnimating = false;
     }

@@ -58,6 +58,18 @@ public class Card : MonoBehaviour
         StartCoroutine(NudgeCoroutine(snapPos));
     }
 
+    public void PreRotateCanvasForFlip()
+    {
+        foreach (Canvas c in GetComponentsInChildren<Canvas>(true))
+            c.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+    }
+
+    public void ResetCanvasRotation()
+    {
+        foreach (Canvas c in GetComponentsInChildren<Canvas>(true))
+            c.transform.localRotation = Quaternion.identity;
+    }
+
     public void SetHorizontal(bool isHorizontal)
     {
         restingHorizontal = isHorizontal;
