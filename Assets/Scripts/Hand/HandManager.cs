@@ -155,13 +155,13 @@ public class HandManager : MonoBehaviour
         cardDeck.transform.localScale = deckOriginalScale;
 
         GameObject newCardObj = Instantiate(cardPrefab, spawnPos, Quaternion.Euler(deckEuler));
-        newCardObj.transform.localScale = new Vector3(0f, 1.3f, 1.3f);
+        newCardObj.transform.localScale = new Vector3(0f, 1.0f, 1.0f);
         Card card = newCardObj.GetComponent<Card>();
         card.Init(data);
         card.SetHorizontal(true);
 
         onFlipped?.Invoke(card);
-        newCardObj.transform.DOScale(new Vector3(1.3f, 1.3f, 1.3f), halfDuration).SetEase(Ease.Linear);
+        newCardObj.transform.DOScale(new Vector3(1.0f, 1.0f, 1.0f), halfDuration).SetEase(Ease.Linear);
 
         yield return new WaitForSeconds(deckRevealDelay);
         if (backgroundSpawn != null) Destroy(backgroundSpawn);
