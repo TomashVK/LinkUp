@@ -7,7 +7,6 @@ public class CardDeck : MonoBehaviour
     [SerializeField] private CardData[] cards;
     [SerializeField] private SpriteRenderer deckVisual;
     [SerializeField] private Sprite[] deckVisualSprites;
-    [SerializeField] private GameObject emptyStateVisual;
     [SerializeField] private TMP_Text deckCountText;
     [SerializeField] private Transform spawnContainer;
 
@@ -72,8 +71,6 @@ public class CardDeck : MonoBehaviour
             transform.position = GetSpawnPosition();
 
         SetVisible(hasCards);
-        if (!hasCards && emptyStateVisual != null)
-            emptyStateVisual.SetActive(true);
         RefreshCountText();
     }
 
@@ -86,7 +83,6 @@ public class CardDeck : MonoBehaviour
                 drawable.Add(c);
         cards = drawable.ToArray();
         drawIndex = 0;
-        if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
         UpdateDeckVisual();
         RefreshCountText();
     }
@@ -96,7 +92,6 @@ public class CardDeck : MonoBehaviour
         cards = newCards.ToArray();
         originalCards = cards;
         drawIndex = 0;
-        if (emptyStateVisual != null) emptyStateVisual.SetActive(false);
         UpdateDeckVisual();
         RefreshCountText();
     }
