@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
-    private const int TargetFrameRate = 60;
-
     private void Awake()
     {
-        Application.targetFrameRate = TargetFrameRate;
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.value);
+        InputSystem.settings.updateMode = InputSettings.UpdateMode.ProcessEventsInDynamicUpdate;
     }
 }

@@ -110,18 +110,20 @@ public class Card : MonoBehaviour
     {
         PointerInputService.Instance.Pressed += OnPointerDown;
         PointerInputService.Instance.Released += OnPointerUp;
+        PointerInputService.Instance.Moved += OnPointerMoved;
     }
 
     private void OnDisable()
     {
         PointerInputService.Instance.Pressed -= OnPointerDown;
         PointerInputService.Instance.Released -= OnPointerUp;
+        PointerInputService.Instance.Moved -= OnPointerMoved;
     }
 
-    private void LateUpdate()
+    private void OnPointerMoved(Vector2 screenPos)
     {
         if (!isDragging) return;
-        transform.position = ScreenToWorld(PointerInputService.Instance.Position) + touchOffset;
+        transform.position = ScreenToWorld(screenPos) + touchOffset;
     }
 
     private void OnPointerDown(Vector2 screenPos)

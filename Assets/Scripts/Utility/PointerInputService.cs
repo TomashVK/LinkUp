@@ -9,6 +9,7 @@ public class PointerInputService : MonoBehaviour
 
     public event Action<Vector2> Pressed;
     public event Action<Vector2> Released;
+    public event Action<Vector2> Moved;
 
     public Vector2 Position => positionAction.ReadValue<Vector2>();
     public bool IsCardDragging { get; set; }
@@ -29,6 +30,7 @@ public class PointerInputService : MonoBehaviour
     {
         pressAction.started += OnPressStarted;
         pressAction.canceled += OnPressCanceled;
+        positionAction.performed += OnPositionPerformed;
         pressAction.Enable();
         positionAction.Enable();
     }
@@ -37,6 +39,7 @@ public class PointerInputService : MonoBehaviour
     {
         pressAction.started -= OnPressStarted;
         pressAction.canceled -= OnPressCanceled;
+        positionAction.performed -= OnPositionPerformed;
         pressAction.Disable();
         positionAction.Disable();
     }
@@ -51,5 +54,10 @@ public class PointerInputService : MonoBehaviour
     {
         Vector2 pos = ctx.control?.device is Pointer ptr ? ptr.position.ReadValue() : positionAction.ReadValue<Vector2>();
         Released?.Invoke(pos);
+    }
+
+    private void OnPositionPerformed(InputAction.CallbackContext ctx)
+    {
+        Moved?.Invoke(ctx.ReadValue<Vector2>());
     }
 }
