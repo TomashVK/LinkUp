@@ -6,7 +6,9 @@ using UnityEngine.EventSystems;
 
 public class Card : MonoBehaviour,
     IPointerDownHandler, IDragHandler, IPointerUpHandler, IInitializePotentialDragHandler
-{
+{    
+    private const int dragSortingOrder = 999;
+
     public static event System.Action<Card> Dropped;
     public static event System.Action<Card> SnapBacked;
     public static event System.Action<Card> DragPickedUp;
@@ -15,7 +17,6 @@ public class Card : MonoBehaviour,
     [SerializeField] private float nudgeAmplitude = 12f;
     [SerializeField] private float nudgeFrequency = 18f;
     [SerializeField] private float nudgeDamping = 7f;
-    [SerializeField] private int dragSortingOrder = 999;
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
     [SerializeField] private TMP_Text verticalRightVisual;

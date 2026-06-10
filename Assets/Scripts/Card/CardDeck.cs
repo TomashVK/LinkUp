@@ -18,7 +18,6 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
     private CardData[] originalCards;
 
     public bool HasCards => drawIndex < cards.Length;
-    public bool IsEmpty => !HasCards;
     public int RemainingCount => cards.Length - drawIndex;
 
     private void Awake()
