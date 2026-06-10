@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
 public class HandDropZone : MonoBehaviour, ICardDrop
 {
     public static event System.Action CardTakenToHand;

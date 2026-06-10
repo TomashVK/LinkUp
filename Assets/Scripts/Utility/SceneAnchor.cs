@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
 public class SceneAnchor : MonoBehaviour
 {
     public enum AnchorMode { Scene, Object }
@@ -137,6 +136,7 @@ public class SceneAnchor : MonoBehaviour
     {
         if (TryGetComponent<Renderer>(out var rend))  return rend.bounds.size;
         if (TryGetComponent<Collider2D>(out var col)) return col.bounds.size;
+        if (TryGetComponent<RectTransform>(out var rt)) return rt.rect.size;
         return Vector2.zero;
     }
 }

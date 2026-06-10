@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class CardDeck : MonoBehaviour
+public class CardDeck : MonoBehaviour, IPointerClickHandler
 {
+    public static event System.Action Tapped;
+
     [SerializeField] private CardData[] cards;
-    [SerializeField] private SpriteRenderer deckVisual;
+    [SerializeField] private Image deckVisual;
     [SerializeField] private Sprite[] deckVisualSprites;
     [SerializeField] private TMP_Text deckCountText;
     [SerializeField] private Transform spawnContainer;
@@ -25,6 +29,8 @@ public class CardDeck : MonoBehaviour
         RefreshCountText();
     }
 
+    public void OnPointerClick(PointerEventData eventData) => Tapped?.Invoke();
+
     public CardData DrawNext()
     {
         if (!HasCards) return null;
@@ -39,17 +45,20 @@ public class CardDeck : MonoBehaviour
             deckVisual.gameObject.SetActive(false);
     }
 
-    public Vector3 GetSpawnPosition()
+    public void UpdateDeckSprite()
     {
-        if (deckVisual != null && deckVisualSprites != null && deckVisualSprites.Length > 0 && deckVisualSprites[0] != null)
+        if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return;
+        int remaining = RemainingCount;
+        if (remaining > 0)
         {
-            Bounds b = deckVisual.bounds;
-            float singleCardHalfH = deckVisualSprites[0].bounds.extents.y * deckVisual.transform.lossyScale.y;
-            return new Vector3(b.center.x, b.max.y - singleCardHalfH, b.center.z);
+            int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
+            deckVisual.sprite = deckVisualSprites[level];
         }
-        if (deckVisual != null)
-            return deckVisual.transform.position;
-        return transform.position;
+    }
+
+    public Vector2 GetSpawnPosition()
+    {
+        return transform.localPosition;
     }
 
     public void UpdateDeckVisual()
@@ -67,10 +76,9 @@ public class CardDeck : MonoBehaviour
             }
         }
 
-        if (hasCards && deckVisual != null)
-            transform.position = GetSpawnPosition();
+        if (deckCountText != null)
+            deckCountText.gameObject.SetActive(hasCards);
 
-        SetVisible(hasCards);
         RefreshCountText();
     }
 
@@ -107,14 +115,24 @@ public class CardDeck : MonoBehaviour
         if (spawnContainer == null || RemainingCount <= 0) return null;
 
         GameObject bg = Instantiate(spawnContainer.gameObject, transform.parent);
-        bg.transform.SetPositionAndRotation(spawnContainer.position, Quaternion.identity);
+        RectTransform bgRT = bg.GetComponent<RectTransform>();
+        RectTransform scRT = spawnContainer.GetComponent<RectTransform>();
+        if (bgRT != null && scRT != null)
+        {
+            bgRT.position = scRT.position;
+            bg.transform.SetSiblingIndex(transform.GetSiblingIndex());
+        }
 
-        foreach (SpriteRenderer sr in bg.GetComponentsInChildren<SpriteRenderer>(true))
-            sr.sortingOrder = -5;
+        if (deckCountText != null)
+        {
+            GameObject textClone = Instantiate(deckCountText.gameObject, bg.transform);
+            textClone.GetComponent<RectTransform>().position = deckCountText.GetComponent<RectTransform>().position;
+            TMP_Text t = textClone.GetComponent<TMP_Text>();
+            if (t != null) t.text = RemainingCount.ToString();
+        }
+
         foreach (Canvas c in bg.GetComponentsInChildren<Canvas>(true))
             c.sortingOrder = -5;
-        foreach (TMP_Text t in bg.GetComponentsInChildren<TMP_Text>(true))
-            t.text = RemainingCount.ToString();
 
         return bg;
     }
@@ -127,10 +145,19 @@ public class CardDeck : MonoBehaviour
 
     public void SetVisible(bool visible)
     {
-        foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
-            r.enabled = visible;
-        foreach (Canvas c in GetComponentsInChildren<Canvas>(true))
-            c.enabled = visible;
+        CanvasGroup cg = GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.alpha = visible ? 1f : 0f;
+            cg.blocksRaycasts = visible;
+        }
+        else
+        {
+            foreach (Graphic g in GetComponentsInChildren<Graphic>(true))
+                g.enabled = visible;
+            foreach (Canvas c in GetComponentsInChildren<Canvas>(true))
+                c.enabled = visible;
+        }
     }
 
     private static CardData[] CreateFakeDeck()

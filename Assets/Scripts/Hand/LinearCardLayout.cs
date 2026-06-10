@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class LinearCardLayout
 {
@@ -30,19 +31,45 @@ public class LinearCardLayout
             Debug.LogError("[LinearCardLayout] anchor is null — wire the anchor field in the Inspector.");
             return;
         }
+
         int count = cards.Count;
         if (count == 0) return;
 
-        Camera cam = Camera.main;
-        float depth = cam.WorldToScreenPoint(anchor.position).z;
-        Rect sv = SafeAreaHelper.GetViewportRect();
-        float leftBound  = cam.ViewportToWorldPoint(new Vector3(sv.xMin, 0f, depth)).x + margin;
-        float rightBound = cam.ViewportToWorldPoint(new Vector3(sv.xMax, 0f, depth)).x - margin;
+        RectTransform anchorRT = anchor as RectTransform;
+        if (anchorRT == null)
+        {
+            Debug.LogError("[LinearCardLayout] anchor must be a RectTransform in Canvas mode.");
+            return;
+        }
+
+        Canvas rootCanvas = anchorRT.GetComponentInParent<Canvas>();
+        if (rootCanvas != null) rootCanvas = rootCanvas.rootCanvas;
+        RectTransform canvasRT = rootCanvas != null ? rootCanvas.GetComponent<RectTransform>() : null;
+        Camera uiCam = rootCanvas != null ? rootCanvas.worldCamera : null;
+
+        float leftBound, rightBound;
+        RectTransform refRT = anchorRT.parent as RectTransform ?? canvasRT;
+        if (refRT != null)
+        {
+            Rect sa = Screen.safeArea;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(refRT, new Vector2(sa.xMin, sa.yMin), uiCam, out Vector2 saMin);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(refRT, new Vector2(sa.xMax, sa.yMax), uiCam, out Vector2 saMax);
+            leftBound  = saMin.x + margin;
+            rightBound = saMax.x - margin;
+        }
+        else
+        {
+            leftBound  = anchorRT.anchoredPosition.x - 500f;
+            rightBound = anchorRT.anchoredPosition.x + 500f;
+        }
+
         float available  = rightBound - leftBound;
-        float centerX    = centerOnSafeArea ? (leftBound + rightBound) / 2f : anchor.position.x;
+        float anchorLocalX = (float)anchorRT.localPosition.x;
+        float anchorLocalY = (float)anchorRT.localPosition.y;
+        float centerX    = centerOnSafeArea ? (leftBound + rightBound) / 2f : anchorLocalX;
         float totalWidth = (count - 1) * spacing;
 
-        float rightEdge = rightAnchored ? anchor.position.x : (totalWidth <= available ? centerX + totalWidth / 2f : rightBound);
+        float rightEdge = rightAnchored ? anchorLocalX : (totalWidth <= available ? centerX + totalWidth / 2f : rightBound);
         float baseX = rightEdge - totalWidth;
 
         float maxScroll = centerOnSafeArea ? Mathf.Max(0f, totalWidth - available) : 0f;
@@ -53,22 +80,29 @@ public class LinearCardLayout
         {
             if (cards[i].IsDragging) continue;
 
+            RectTransform cardRT = cards[i].GetComponent<RectTransform>();
+            if (cardRT == null) continue;
+
             int posIdx = Mirrored ? (count - 1 - i) : i;
             float naturalX = baseX + posIdx * spacing + scroll;
             float cardX = centerOnSafeArea ? Mathf.Clamp(naturalX, leftBound, rightBound) : naturalX;
 
-            float xOffset = cardX - anchor.position.x;
-            Vector3 pos = anchor.position + anchor.right * xOffset;
+            Vector2 pos = new Vector2(cardX, anchorLocalY);
+            Quaternion rot = anchorRT.localRotation;
 
-            cards[i].transform.DOKill();
+            cardRT.DOKill();
             if (instant)
-                cards[i].transform.SetPositionAndRotation(pos, anchor.rotation);
+            {
+                cardRT.anchoredPosition = pos;
+                cardRT.localRotation = rot;
+            }
             else
             {
-                cards[i].transform.DOMove(pos, 0.25f);
-                cards[i].transform.DORotateQuaternion(anchor.rotation, 0.25f);
+                cardRT.DOAnchorPos(pos, 0.25f);
+                cardRT.DOLocalRotateQuaternion(rot, 0.25f);
             }
-            cards[i].SetSortingOrder(i);
+
+            cards[i].SetSortingOrder(i + 1);
             bool isTop = i == count - 1;
             cards[i].SetHorizontal(isTop);
             if (!isTop) cards[i].SetVerticalRight(UseVerticalRight);

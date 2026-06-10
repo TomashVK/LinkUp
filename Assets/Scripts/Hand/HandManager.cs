@@ -11,10 +11,11 @@ public class HandManager : MonoBehaviour
     [SerializeField] private int maxHandSize;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private CardDeck cardDeck;
-    [SerializeField] private float spacing = 1.2f;
-    [SerializeField] private float margin = 0.5f;
+    [SerializeField] private float spacing = 160f;
+    [SerializeField] private float margin = 50f;
     [SerializeField] private RevealPile revealPile;
     [SerializeField] private float dealFlipDuration = 0.05f;
+    [SerializeField] private RectTransform cardContainer;
 
     private const float FlipHalfDuration = 0.15f;
 
@@ -37,7 +38,7 @@ public class HandManager : MonoBehaviour
 
     private void OnEnable()
     {
-        PointerInputService.Instance.Pressed += OnPointerDown;
+        CardDeck.Tapped += DrawCard;
         Card.Dropped += OnCardDropped;
         Card.SnapBacked += OnCardSnapBacked;
         Card.DragPickedUp += OnCardDragPickedUp;
@@ -46,24 +47,11 @@ public class HandManager : MonoBehaviour
 
     private void OnDisable()
     {
-        PointerInputService.Instance.Pressed -= OnPointerDown;
+        CardDeck.Tapped -= DrawCard;
         Card.Dropped -= OnCardDropped;
         Card.SnapBacked -= OnCardSnapBacked;
         Card.DragPickedUp -= OnCardDragPickedUp;
         HandSwipeArea.Scrolled -= OnHandScrolled;
-    }
-
-    private void OnPointerDown(Vector2 screenPos)
-    {
-        if (isDrawing || isDealing) return;
-        float zDist = Camera.main.WorldToScreenPoint(cardDeck.transform.position).z;
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, zDist));
-
-        Collider2D[] hits = Physics2D.OverlapPointAll(worldPos);
-        foreach (Collider2D hit in hits)
-        {
-            if (hit.gameObject == cardDeck.gameObject) { DrawCard(); return; }
-        }
     }
 
     private void OnCardDropped(Card card)
@@ -132,17 +120,18 @@ public class HandManager : MonoBehaviour
     {
         isDrawing = true;
         IsAnimating = true;
+
         int remainingBeforeDraw = cardDeck.RemainingCount;
-        Vector3 spawnPos = cardDeck.GetSpawnPosition();
+        Vector2 spawnPos = cardDeck.GetSpawnPosition();
         CardData data = cardDeck.DrawNext();
         cardDeck.SetCountDisplay(remainingBeforeDraw);
-        Vector3 deckEuler = cardDeck.transform.eulerAngles;
+        Vector3 deckEuler = cardDeck.transform.localEulerAngles;
         Vector3 deckOriginalScale = cardDeck.transform.localScale;
-
-        cardDeck.transform.position = spawnPos;
 
         if (remainingBeforeDraw == 1)
             cardDeck.HideDeckVisual();
+        else
+            cardDeck.UpdateDeckSprite();
 
         GameObject backgroundSpawn = cardDeck.CreateBackgroundSpawn();
 
@@ -154,8 +143,13 @@ public class HandManager : MonoBehaviour
         cardDeck.SetVisible(false);
         cardDeck.transform.localScale = deckOriginalScale;
 
-        GameObject newCardObj = Instantiate(cardPrefab, spawnPos, Quaternion.Euler(deckEuler));
+        RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
+        GameObject newCardObj = Instantiate(cardPrefab, container);
+        RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
+        newCardRT.anchoredPosition = spawnPos;
+        newCardRT.localEulerAngles = deckEuler;
         newCardObj.transform.localScale = new Vector3(0f, 1.0f, 1.0f);
+
         Card card = newCardObj.GetComponent<Card>();
         card.Init(data);
         card.SetHorizontal(true);
@@ -176,7 +170,7 @@ public class HandManager : MonoBehaviour
     {
         layout.ScrollOffset = handScrollOffset + delta;
         layout.PlaceCards(handCards, instant: true);
-        handScrollOffset = layout.ScrollOffset; // clamped value written back by PlaceCards
+        handScrollOffset = layout.ScrollOffset;
     }
 
     private void UpdateCardPositions()

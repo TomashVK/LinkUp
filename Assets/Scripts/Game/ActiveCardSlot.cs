@@ -1,65 +1,48 @@
 using DG.Tweening;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
 public class ActiveCardSlot : MonoBehaviour, ICardDrop
 {
     public static event System.Action CardPlayed;
 
     private ConnectionGraph graph;
-    private string activeCardId;
-    private Card currentCard;
+    private Card activeCard;
 
-    public string ActiveCardId => activeCardId;
-
-    public void Init(ConnectionGraph graph) => this.graph = graph;
+    public void Init(ConnectionGraph connectionGraph)
+    {
+        graph = connectionGraph;
+    }
 
     public void ReceiveCard(Card card)
     {
-        PlaceCard(card, animate: true);
+        activeCard = card;
+        RectTransform rt = card.GetComponent<RectTransform>();
+        RectTransform slotRT = GetComponent<RectTransform>();
+        rt.DOKill();
+        rt.DOAnchorPos(slotRT.localPosition, 0.25f);
+        rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
+        card.SetHorizontal(true);
+        card.SetSortingOrder(1);
     }
 
     public bool OnCardDrop(Card card)
     {
-        if (MoveCounter.IsOutOfMoves) return false;
+        if (activeCard == null) return false;
+        if (graph == null) return false;
+        if (!graph.CanPlay(activeCard.Data.gameId, card.Data.gameId)) return false;
 
-        if (graph == null)
-        {
-            Debug.LogWarning("[ActiveCardSlot.OnCardDrop] graph is null — rejected.");
-            return false;
-        }
-        if (string.IsNullOrEmpty(card.Data?.gameId))
-        {
-            Debug.LogWarning("[ActiveCardSlot.OnCardDrop] card has no gameId — rejected.");
-            return false;
-        }
+        Destroy(activeCard.gameObject);
+        activeCard = card;
 
-        bool canPlay = graph.CanPlay(activeCardId, card.Data.gameId);
-        Debug.Log($"[ActiveCardSlot.OnCardDrop] CanPlay(active='{activeCardId}', drop='{card.Data.gameId}') = {canPlay}");
+        RectTransform rt = card.GetComponent<RectTransform>();
+        RectTransform slotRT = GetComponent<RectTransform>();
+        rt.DOKill();
+        rt.DOAnchorPos(slotRT.localPosition, 0.25f);
+        rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
+        card.SetHorizontal(true);
+        card.SetSortingOrder(1);
 
-        if (!canPlay) return false;
-
-        PlaceCard(card);
         CardPlayed?.Invoke();
         return true;
-    }
-
-    private void PlaceCard(Card card, bool animate = false)
-    {
-        if (currentCard != null)
-            Destroy(currentCard.gameObject);
-
-        activeCardId = card.Data.gameId;
-        if (animate)
-        {
-            card.transform.DOMove(transform.position, 0.25f);
-            card.transform.DORotate(transform.eulerAngles, 0.25f);
-        }
-        else
-            card.transform.position = transform.position;
-        card.SetSortingOrder(0);
-        card.SetInteractable(false);
-        currentCard = card;
-        Debug.Log($"[ActiveCardSlot.PlaceCard] activeCardId='{activeCardId}' placed at {transform.position}.");
     }
 }

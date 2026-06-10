@@ -7,8 +7,8 @@ public class RevealPile : MonoBehaviour
 
     private const int VisibleCount = 3;
 
-    [SerializeField] private float spacing = 0.5f;
-    [SerializeField] private float margin = 0.3f;
+    [SerializeField] private float spacing = 80f;
+    [SerializeField] private float margin = 20f;
 
     private readonly List<Card> pileCards = new();
     private LinearCardLayout layout;
@@ -95,9 +95,9 @@ public class RevealPile : MonoBehaviour
 
     private static void SetCardVisible(Card card, bool visible)
     {
-        foreach (Renderer r in card.GetComponentsInChildren<Renderer>(true))
-            r.enabled = visible;
-        foreach (Canvas c in card.GetComponentsInChildren<Canvas>(true))
-            c.enabled = visible;
+        CanvasGroup cg = card.GetComponent<CanvasGroup>();
+        if (cg == null) return;
+        cg.alpha = visible ? 1f : 0f;
+        cg.blocksRaycasts = visible;
     }
 }
