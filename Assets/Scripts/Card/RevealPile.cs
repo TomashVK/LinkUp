@@ -5,10 +5,8 @@ public class RevealPile : MonoBehaviour
 {
     public static event System.Action CardDrawnToRevealPile;
 
-    private const int VisibleCount = 3;
-
+    [SerializeField] private int visibleCount = 3;
     [SerializeField] private float spacing = 80f;
-    [SerializeField] private float margin = 20f;
 
     private readonly List<Card> pileCards = new();
     private LinearCardLayout layout;
@@ -19,9 +17,11 @@ public class RevealPile : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(transform, spacing, margin, rightAnchored: true);
-        layout.Mirrored = true;
-        layout.UseVerticalRight = true;
+        layout = new LinearCardLayout(transform, spacing, rightAnchored: true)
+        {
+            Mirrored = true,
+            UseVerticalRight = true
+        };
     }
 
     private void OnEnable()
@@ -71,7 +71,7 @@ public class RevealPile : MonoBehaviour
         int count = pileCards.Count;
         for (int i = 0; i < count; i++)
         {
-            bool visible = i >= count - VisibleCount;
+            bool visible = i >= count - visibleCount;
             SetCardVisible(pileCards[i], visible);
         }
     }
@@ -86,8 +86,8 @@ public class RevealPile : MonoBehaviour
     private void UpdateCardPositions()
     {
         int count = pileCards.Count;
-        int visibleStart = Mathf.Max(0, count - VisibleCount);
-        var visibleCards = new List<Card>(VisibleCount);
+        int visibleStart = Mathf.Max(0, count - visibleCount);
+        var visibleCards = new List<Card>(visibleCount);
         for (int i = visibleStart; i < count; i++)
             visibleCards.Add(pileCards[i]);
         layout.PlaceCards(visibleCards);

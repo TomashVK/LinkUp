@@ -15,7 +15,7 @@ public class LinearCardLayout
     public bool Mirrored { get; set; }
     public bool UseVerticalRight { get; set; }
 
-    public LinearCardLayout(Transform anchor, float spacing, float margin, bool centerOnSafeArea = false, bool rightAnchored = false)
+    public LinearCardLayout(Transform anchor, float spacing, float margin = 0f, bool centerOnSafeArea = false, bool rightAnchored = false)
     {
         this.anchor = anchor;
         this.spacing = spacing;
