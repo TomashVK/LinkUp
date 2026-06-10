@@ -10,7 +10,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private HandManager handManager;
     [SerializeField] private CardDeck cardDeck;
     [SerializeField] private ActiveCardSlot activeCardSlot;
-[SerializeField] private MoveCounter moveCounter;
+    [SerializeField] private MoveCounter moveCounter;
     [SerializeField] private ContinuePanel continuePanel;
     [SerializeField] private TMP_Text moveCountText;
     [SerializeField] private GameObject winPanel;
