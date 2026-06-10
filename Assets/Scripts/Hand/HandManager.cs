@@ -16,8 +16,7 @@ public class HandManager : MonoBehaviour
     [SerializeField] private RevealPile revealPile;
     [SerializeField] private float dealFlipDuration = 0.05f;
     [SerializeField] private RectTransform cardContainer;
-
-    private const float FlipHalfDuration = 0.15f;
+    [SerializeField] private float flipHalfDuration = 0.15f;
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -29,7 +28,6 @@ public class HandManager : MonoBehaviour
     public static bool IsAnimating { get; private set; }
 
     public int CardCount => handCards.Count;
-    public IReadOnlyList<Card> HandCards => handCards;
 
     private void Awake()
     {
@@ -116,8 +114,9 @@ public class HandManager : MonoBehaviour
         yield return StartCoroutine(FlipTopCard(card => revealPile.ReceiveCard(card)));
     }
 
-    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = FlipHalfDuration, float deckRevealDelay = 0.25f)
+    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = -1f, float deckRevealDelay = 0.25f)
     {
+        if (halfDuration < 0) halfDuration = flipHalfDuration;
         isDrawing = true;
         IsAnimating = true;
 
