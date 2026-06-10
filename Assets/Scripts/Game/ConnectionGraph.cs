@@ -36,9 +36,6 @@ public class ConnectionGraph
             && edges.Exists(e => e.targetId == targetId);
     }
 
-    public List<RuntimeConnection> GetConnections(string cardId) =>
-        graph.TryGetValue(cardId, out var list) ? list : new List<RuntimeConnection>();
-
     private float MaxTagStrength(string[] a, string[] b, List<TagRule> rules)
     {
         if (a == null || b == null) return 0f;
