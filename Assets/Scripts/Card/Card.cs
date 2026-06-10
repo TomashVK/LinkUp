@@ -11,12 +11,11 @@ public class Card : MonoBehaviour,
     public static event System.Action<Card> SnapBacked;
     public static event System.Action<Card> DragPickedUp;
 
-    private const float NudgeDuration = 0.5f;
-    private const float NudgeAmplitude = 12f;
-    private const float NudgeFrequency = 18f;
-    private const float NudgeDamping = 7f;
-    private const int DragSortingOrder = 999;
-
+    [SerializeField] private float nudgeDuration = 0.5f;
+    [SerializeField] private float nudgeAmplitude = 12f;
+    [SerializeField] private float nudgeFrequency = 18f;
+    [SerializeField] private float nudgeDamping = 7f;
+    [SerializeField] private int dragSortingOrder = 999;
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
     [SerializeField] private TMP_Text verticalRightVisual;
@@ -78,16 +77,6 @@ public class Card : MonoBehaviour,
             label.text = data.cardName;
     }
 
-    public void PlayNudge(Vector2 snapAnchoredPos, Quaternion snapRot)
-    {
-        rectTransform.anchoredPosition = snapAnchoredPos;
-        rectTransform.localRotation = snapRot;
-        StartCoroutine(NudgeCoroutine(snapAnchoredPos));
-    }
-
-    public void PreRotateCanvasForFlip() { }
-    public void ResetCanvasRotation() { }
-
     public void SetHorizontal(bool isHorizontal)
     {
         restingHorizontal = isHorizontal;
@@ -105,11 +94,6 @@ public class Card : MonoBehaviour,
         if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(isHorizontal);
         if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal && !useRightVertical);
         if (verticalRightVisual != null) verticalRightVisual.gameObject.SetActive(!isHorizontal && useRightVertical);
-    }
-
-    public void SetInteractable(bool interactable)
-    {
-        if (canvasGroup != null) canvasGroup.blocksRaycasts = interactable;
     }
 
     public void SetDraggable(bool draggable)
@@ -138,7 +122,7 @@ public class Card : MonoBehaviour,
         touchOffset = rectTransform.anchoredPosition - localPos;
         restingSortingOrder = CurrentSortingOrder;
         isDragging = true;
-        SetSortingOrder(DragSortingOrder);
+        SetSortingOrder(dragSortingOrder);
         DragPickedUp?.Invoke(this);
         ApplyOrientation(true);
     }
@@ -209,9 +193,9 @@ public class Card : MonoBehaviour,
     private System.Collections.IEnumerator NudgeCoroutine(Vector2 snapAnchoredPos)
     {
         float elapsed = 0f;
-        while (elapsed < NudgeDuration)
+        while (elapsed < nudgeDuration)
         {
-            float nudge = NudgeAmplitude * Mathf.Sin(NudgeFrequency * elapsed) * Mathf.Exp(-NudgeDamping * elapsed);
+            float nudge = nudgeAmplitude * Mathf.Sin(nudgeFrequency * elapsed) * Mathf.Exp(-nudgeDamping * elapsed);
             rectTransform.anchoredPosition = snapAnchoredPos + Vector2.right * nudge;
             elapsed += Time.deltaTime;
             yield return null;
