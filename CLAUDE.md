@@ -10,7 +10,7 @@
 - `[SerializeField]` for inspector-exposed fields. All other fields are private.
 - **Static events** for cross-component communication (e.g. `Card.Dropped`, `HandManager.CardLeftHand`). Subscribe in `OnEnable`, unsubscribe in `OnDisable`.
 - **DOTween** for animations. **Unity Splines** (SplineContainer, BezierKnot) for hand card layout.
-- **New Input System** via `PointerInputService` singleton — never poll `Input` directly.
+- **New Input System** via Canvas `EventSystem` (`IPointerDownHandler`, `IDragHandler`, `IPointerUpHandler`) — never poll `Input` directly.
 - **TextMesh Pro** (`TMP_Text`) for all in-game text.
 - **JsonUtility** cannot deserialize bare JSON arrays. Always wrap: `{"items":[...]}` using the `LoadArray<TWrapper,TItem>` helper in `LevelLoader`.
 - When a constructor or method parameter name clashes with a field name, use `this.fieldName = paramName`.
