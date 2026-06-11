@@ -17,6 +17,9 @@ public class HandManager : MonoBehaviour
     [SerializeField] private RectTransform cardContainer;
     [SerializeField] private float flipHalfDuration = 0.15f;
     [SerializeField] private float dealStagger = 0.12f;
+    [SerializeField] private float cardMoveDuration = 0.25f;
+    [Range(0f, 1f)]
+    [SerializeField] private float flipStartPercent = 0.9f;
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -115,10 +118,9 @@ public class HandManager : MonoBehaviour
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
 
-        float moveDuration = 0.25f;
         onPlaced?.Invoke(card);
 
-        yield return new WaitForSeconds(moveDuration * 0.9f);
+        yield return new WaitForSeconds(cardMoveDuration * flipStartPercent);
         yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         if (backVisualObj != null) Destroy(backVisualObj);
@@ -181,13 +183,10 @@ public class HandManager : MonoBehaviour
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
 
-        float moveDuration = 0.25f;
         onPlaced?.Invoke(card);
 
-        // Wait until close to target (90% of move)
-        yield return new WaitForSeconds(moveDuration * 0.9f);
+        yield return new WaitForSeconds(cardMoveDuration * flipStartPercent);
 
-        // First half of flip — back face folds away
         yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         // Swap: remove back face, reveal card prefab (same as original mid-flip reveal)
