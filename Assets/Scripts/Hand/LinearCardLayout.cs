@@ -90,7 +90,8 @@ public class LinearCardLayout
             Vector2 pos = new Vector2(cardX, anchorLocalY);
             Quaternion rot = anchorRT.localRotation;
 
-            cardRT.DOKill();
+            string tweenId = "layout:" + cardRT.GetInstanceID();
+            DOTween.Kill(tweenId);
             if (instant)
             {
                 cardRT.anchoredPosition = pos;
@@ -98,8 +99,8 @@ public class LinearCardLayout
             }
             else
             {
-                cardRT.DOAnchorPos(pos, 0.25f);
-                cardRT.DOLocalRotateQuaternion(rot, 0.25f);
+                cardRT.DOAnchorPos(pos, 0.25f).SetId(tweenId);
+                cardRT.DOLocalRotateQuaternion(rot, 0.25f).SetId(tweenId);
             }
 
             cards[i].SetSortingOrder(i + 1);

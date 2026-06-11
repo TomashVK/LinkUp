@@ -793,7 +793,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 85.7, y: 945.69995}
+  m_AnchoredPosition: {x: 85.7, y: 950}
   m_SizeDelta: {x: 239, y: 317}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &806890105
@@ -1591,9 +1591,11 @@ MonoBehaviour:
   spacing: 80
   margin: 240
   revealPile: {fileID: 545798891}
-  dealFlipDuration: 0.05
   cardContainer: {fileID: 165791192}
   flipHalfDuration: 0.15
+  dealStagger: 0.12
+  cardMoveDuration: 0.05
+  flipStartPercent: 0.8
 --- !u!224 &2041455342
 RectTransform:
   m_ObjectHideFlags: 0
