@@ -25,18 +25,17 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
 
         RectTransform deckRT = deckVisual.rectTransform;
 
-        // Build the visual as a sibling of deckVisual so anchors/pivot resolve correctly
         GameObject visual = new GameObject("TravelingCardBack", typeof(RectTransform), typeof(Image));
         visual.transform.SetParent(deckRT.parent, worldPositionStays: false);
+
         RectTransform visualRT = visual.GetComponent<RectTransform>();
-        visualRT.pivot        = deckRT.pivot;
-        visualRT.anchorMin    = deckRT.anchorMin;
-        visualRT.anchorMax    = deckRT.anchorMax;
+        visualRT.pivot            = deckRT.pivot;
+        visualRT.anchorMin        = deckRT.anchorMin;
+        visualRT.anchorMax        = deckRT.anchorMax;
         visualRT.anchoredPosition = deckRT.anchoredPosition;
-        visualRT.sizeDelta    = deckRT.sizeDelta;
+        visualRT.sizeDelta        = deckRT.sizeDelta;
         visual.GetComponent<Image>().sprite = deckVisualSprites[0];
 
-        // Re-parent to the traveling card, keeping the world position just established
         visual.transform.SetParent(parent, worldPositionStays: true);
 
         if (deckCountText != null)
@@ -82,6 +81,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         {
             int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
             deckVisual.sprite = deckVisualSprites[level];
+            deckVisual.SetNativeSize();
         }
     }
 
@@ -102,6 +102,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
             {
                 int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
                 deckVisual.sprite = deckVisualSprites[level];
+                deckVisual.SetNativeSize();
             }
         }
 
