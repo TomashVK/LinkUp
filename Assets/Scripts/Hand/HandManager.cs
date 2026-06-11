@@ -16,6 +16,7 @@ public class HandManager : MonoBehaviour
     [SerializeField] private RevealPile revealPile;
     [SerializeField] private RectTransform cardContainer;
     [SerializeField] private float flipHalfDuration = 0.15f;
+    [SerializeField] private float dealStagger = 0.12f;
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -74,13 +75,58 @@ public class HandManager : MonoBehaviour
     public IEnumerator DealInitial(int handSize, ActiveCardSlot activeSlot)
     {
         isDealing = true;
-        yield return StartCoroutine(DrawTopCard(activeSlot.ReceiveCard));
+        IsAnimating = true;
+
+        int total = 1 + handSize;
+        int completed = 0;
+
+        StartCoroutine(DealCard(activeSlot.ReceiveCard, 0f, () => completed++));
         for (int i = 0; i < handSize; i++)
-            yield return StartCoroutine(DrawTopCard(card => {
+        {
+            int captured = i;
+            StartCoroutine(DealCard(card => {
                 handCards.Add(card);
                 UpdateCardPositions();
-            }));
+            }, (captured + 1) * dealStagger, () => completed++));
+        }
+
+        yield return new WaitUntil(() => completed >= total);
         isDealing = false;
+        IsAnimating = false;
+    }
+
+    private IEnumerator DealCard(System.Action<Card> onPlaced, float delay, System.Action onDone)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+
+        Vector2 spawnPos = cardDeck.GetSpawnPosition();
+        int countBeforeDraw = cardDeck.RemainingCount;
+        CardData data = cardDeck.DrawNext();
+        cardDeck.UpdateDeckVisual();
+
+        RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
+        GameObject newCardObj = Instantiate(cardPrefab, container);
+        RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
+        newCardRT.anchoredPosition = spawnPos;
+        newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
+
+        GameObject backVisualObj = cardDeck.CreateTravelingVisual(newCardObj.transform, countBeforeDraw);
+
+        Card card = newCardObj.GetComponent<Card>();
+        card.SetHorizontal(true);
+
+        float moveDuration = 0.25f;
+        onPlaced?.Invoke(card);
+
+        yield return new WaitForSeconds(moveDuration * 0.9f);
+        yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+
+        if (backVisualObj != null) Destroy(backVisualObj);
+        card.Init(data);
+
+        yield return newCardObj.transform.DOScaleX(1f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+
+        onDone?.Invoke();
     }
 
     public bool CanAcceptCard() => handCards.Count < maxHandSize;
