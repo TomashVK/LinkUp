@@ -19,6 +19,36 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
 
     public bool HasCards => drawIndex < cards.Length;
     public int RemainingCount => cards.Length - drawIndex;
+    public GameObject CreateTravelingVisual(Transform parent, int displayCount)
+    {
+        if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return null;
+
+        RectTransform deckRT = deckVisual.rectTransform;
+
+        // Build the visual as a sibling of deckVisual so anchors/pivot resolve correctly
+        GameObject visual = new GameObject("TravelingCardBack", typeof(RectTransform), typeof(Image));
+        visual.transform.SetParent(deckRT.parent, worldPositionStays: false);
+        RectTransform visualRT = visual.GetComponent<RectTransform>();
+        visualRT.pivot        = deckRT.pivot;
+        visualRT.anchorMin    = deckRT.anchorMin;
+        visualRT.anchorMax    = deckRT.anchorMax;
+        visualRT.anchoredPosition = deckRT.anchoredPosition;
+        visualRT.sizeDelta    = deckRT.sizeDelta;
+        visual.GetComponent<Image>().sprite = deckVisualSprites[0];
+
+        // Re-parent to the traveling card, keeping the world position just established
+        visual.transform.SetParent(parent, worldPositionStays: true);
+
+        if (deckCountText != null)
+        {
+            GameObject textClone = Instantiate(deckCountText.gameObject, visual.transform, worldPositionStays: true);
+            textClone.SetActive(true);
+            TMP_Text t = textClone.GetComponent<TMP_Text>();
+            if (t != null) t.text = displayCount.ToString();
+        }
+
+        return visual;
+    }
 
     private void Awake()
     {

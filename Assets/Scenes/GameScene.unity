@@ -624,7 +624,6 @@ MonoBehaviour:
   handManager: {fileID: 2041455341}
   cardDeck: {fileID: 33206883}
   activeCardSlot: {fileID: 1362270049}
-  revealPile: {fileID: 545798891}
   moveCounter: {fileID: 1373650693}
   continuePanel: {fileID: 0}
   moveCountText: {fileID: 837744971}
@@ -768,8 +767,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58ffb5168996e4868919fd3ad4732d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RevealPile
+  visibleCount: 3
   spacing: 80
-  margin: 20
 --- !u!222 &545798892
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1594,6 +1593,7 @@ MonoBehaviour:
   revealPile: {fileID: 545798891}
   dealFlipDuration: 0.05
   cardContainer: {fileID: 165791192}
+  flipHalfDuration: 0.15
 --- !u!224 &2041455342
 RectTransform:
   m_ObjectHideFlags: 0

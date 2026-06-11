@@ -14,7 +14,6 @@ public class HandManager : MonoBehaviour
     [SerializeField] private float spacing = 160f;
     [SerializeField] private float margin = 50f;
     [SerializeField] private RevealPile revealPile;
-    [SerializeField] private float dealFlipDuration = 0.05f;
     [SerializeField] private RectTransform cardContainer;
     [SerializeField] private float flipHalfDuration = 0.15f;
 
@@ -75,12 +74,12 @@ public class HandManager : MonoBehaviour
     public IEnumerator DealInitial(int handSize, ActiveCardSlot activeSlot)
     {
         isDealing = true;
-        yield return StartCoroutine(FlipTopCard(activeSlot.ReceiveCard, dealFlipDuration, dealFlipDuration));
+        yield return StartCoroutine(DrawTopCard(activeSlot.ReceiveCard));
         for (int i = 0; i < handSize; i++)
-            yield return StartCoroutine(FlipTopCard(card => {
+            yield return StartCoroutine(DrawTopCard(card => {
                 handCards.Add(card);
                 UpdateCardPositions();
-            }, dealFlipDuration, dealFlipDuration));
+            }));
         isDealing = false;
     }
 
@@ -111,55 +110,46 @@ public class HandManager : MonoBehaviour
 
     private IEnumerator DrawCardToRevealPile()
     {
-        yield return StartCoroutine(FlipTopCard(card => revealPile.ReceiveCard(card)));
+        yield return StartCoroutine(DrawTopCard(card => revealPile.ReceiveCard(card)));
     }
 
-    private IEnumerator FlipTopCard(System.Action<Card> onFlipped, float halfDuration = -1f, float deckRevealDelay = 0.25f)
+    private IEnumerator DrawTopCard(System.Action<Card> onPlaced)
     {
-        if (halfDuration < 0) halfDuration = flipHalfDuration;
         isDrawing = true;
         IsAnimating = true;
 
-        int remainingBeforeDraw = cardDeck.RemainingCount;
         Vector2 spawnPos = cardDeck.GetSpawnPosition();
+        int countBeforeDraw = cardDeck.RemainingCount;
         CardData data = cardDeck.DrawNext();
-        cardDeck.SetCountDisplay(remainingBeforeDraw);
-        Vector3 deckEuler = cardDeck.transform.localEulerAngles;
-        Vector3 deckOriginalScale = cardDeck.transform.localScale;
-
-        if (remainingBeforeDraw == 1)
-            cardDeck.HideDeckVisual();
-        else
-            cardDeck.UpdateDeckSprite();
-
-        GameObject backgroundSpawn = cardDeck.CreateBackgroundSpawn();
-
-        yield return cardDeck.transform
-            .DOScaleX(0f, halfDuration)
-            .SetEase(Ease.Linear)
-            .WaitForCompletion();
-
-        cardDeck.SetVisible(false);
-        cardDeck.transform.localScale = deckOriginalScale;
+        cardDeck.UpdateDeckVisual();
 
         RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
         GameObject newCardObj = Instantiate(cardPrefab, container);
         RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
         newCardRT.anchoredPosition = spawnPos;
-        newCardRT.localEulerAngles = deckEuler;
-        newCardObj.transform.localScale = new Vector3(0f, 1.0f, 1.0f);
+        newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
+
+        // Overlay back-face visual (sprite + counter) as a child so it travels with the card
+        GameObject backVisualObj = cardDeck.CreateTravelingVisual(newCardObj.transform, countBeforeDraw);
 
         Card card = newCardObj.GetComponent<Card>();
-        card.Init(data);
         card.SetHorizontal(true);
 
-        onFlipped?.Invoke(card);
-        newCardObj.transform.DOScale(new Vector3(1.0f, 1.0f, 1.0f), halfDuration).SetEase(Ease.Linear);
+        float moveDuration = 0.25f;
+        onPlaced?.Invoke(card);
 
-        yield return new WaitForSeconds(deckRevealDelay);
-        if (backgroundSpawn != null) Destroy(backgroundSpawn);
-        cardDeck.SetVisible(true);
-        cardDeck.UpdateDeckVisual();
+        // Wait until close to target (90% of move)
+        yield return new WaitForSeconds(moveDuration * 0.9f);
+
+        // First half of flip — back face folds away
+        yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+
+        // Swap: remove back face, reveal card prefab (same as original mid-flip reveal)
+        if (backVisualObj != null) Destroy(backVisualObj);
+        card.Init(data);
+
+        // Second half of flip — card face unfolds into view
+        yield return newCardObj.transform.DOScaleX(1f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         isDrawing = false;
         IsAnimating = false;
