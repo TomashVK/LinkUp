@@ -46,6 +46,7 @@ public class RevealPile : MonoBehaviour
     public void ReceiveCard(Card card)
     {
         pileCards.Add(card);
+        card.SetShadowSide(true);
         RefreshVisibility();
         UpdateDraggability();
         UpdateCardPositions();

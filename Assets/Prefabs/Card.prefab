@@ -200,6 +200,8 @@ MonoBehaviour:
   horizontalVisual: {fileID: 8085695212805353519}
   verticalLeftVisual: {fileID: 3582156786135279899}
   verticalRightVisual: {fileID: 5745822565099178330}
+  cardLeftShadow: {fileID: -8365284182095547912, guid: ded1125fb88c84bd8b4e0491542dec6c, type: 3}
+  cardRightShadow: {fileID: 6740898244502002735, guid: 5f52a6bc41bff49b293f69e5d44461a9, type: 3}
 --- !u!222 &6961108676760478844
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -325,7 +327,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 66, y: -0}
+  m_AnchoredPosition: {x: 63, y: -0}
   m_SizeDelta: {x: 188.9021, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1955926753380402512

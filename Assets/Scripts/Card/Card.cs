@@ -3,6 +3,7 @@ using TMPro;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Card : MonoBehaviour,
     IPointerDownHandler, IDragHandler, IPointerUpHandler, IInitializePotentialDragHandler
@@ -20,6 +21,8 @@ public class Card : MonoBehaviour,
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
     [SerializeField] private TMP_Text verticalRightVisual;
+    [SerializeField] private Sprite cardLeftShadow;
+    [SerializeField] private Sprite cardRightShadow;
 
     public int CurrentSortingOrder { get; private set; }
     public bool IsDragging => isDragging;
@@ -36,6 +39,7 @@ public class Card : MonoBehaviour,
     private RectTransform rectTransform;
     private Canvas canvas;
     private CanvasGroup canvasGroup;
+    private Image image;
     private RectTransform canvasRect;
     private Camera uiCamera;
 
@@ -57,6 +61,7 @@ public class Card : MonoBehaviour,
         rectTransform = GetComponent<RectTransform>();
         canvas = GetComponent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
+        image = GetComponent<Image>();
         CurrentSortingOrder = canvas != null ? canvas.sortingOrder : 0;
         restingSortingOrder = CurrentSortingOrder;
     }
@@ -95,6 +100,12 @@ public class Card : MonoBehaviour,
         if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(isHorizontal);
         if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal && !useRightVertical);
         if (verticalRightVisual != null) verticalRightVisual.gameObject.SetActive(!isHorizontal && useRightVertical);
+    }
+
+    public void SetShadowSide(bool useRight)
+    {
+        if (image == null) return;
+        image.sprite = useRight ? cardRightShadow : cardLeftShadow;
     }
 
     public void SetDraggable(bool draggable)

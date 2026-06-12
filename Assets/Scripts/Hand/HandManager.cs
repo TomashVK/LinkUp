@@ -88,6 +88,7 @@ public class HandManager : MonoBehaviour
         {
             int captured = i;
             StartCoroutine(DealCard(card => {
+                card.SetShadowSide(false);
                 handCards.Add(card);
                 UpdateCardPositions();
             }, (captured + 1) * dealStagger, () => completed++));
@@ -135,6 +136,7 @@ public class HandManager : MonoBehaviour
 
     public void AddCardFromRevealPile(Card card)
     {
+        card.SetShadowSide(false);
         handCards.Add(card);
         UpdateCardPositions();
     }

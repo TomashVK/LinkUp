@@ -23,6 +23,7 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
         card.SetHorizontal(true);
         card.SetSortingOrder(1);
+        card.SetShadowSide(true);
     }
 
     public bool OnCardDrop(Card card)
@@ -41,6 +42,7 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
         card.SetHorizontal(true);
         card.SetSortingOrder(1);
+        card.SetShadowSide(true);
 
         CardPlayed?.Invoke();
         return true;
