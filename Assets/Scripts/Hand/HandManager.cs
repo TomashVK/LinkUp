@@ -102,12 +102,12 @@ public class HandManager : MonoBehaviour
     {
         if (delay > 0f) yield return new WaitForSeconds(delay);
 
-        Vector2 spawnPos = cardDeck.GetSpawnPosition();
         int countBeforeDraw = cardDeck.RemainingCount;
         CardData data = cardDeck.DrawNext();
         cardDeck.UpdateDeckVisual();
 
         RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
+        Vector2 spawnPos = cardDeck.GetSpawnPosition(container);
         GameObject newCardObj = Instantiate(cardPrefab, container);
         RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
         newCardRT.anchoredPosition = spawnPos;
@@ -166,12 +166,12 @@ public class HandManager : MonoBehaviour
         isDrawing = true;
         IsAnimating = true;
 
-        Vector2 spawnPos = cardDeck.GetSpawnPosition();
         int countBeforeDraw = cardDeck.RemainingCount;
         CardData data = cardDeck.DrawNext();
         cardDeck.UpdateDeckVisual();
 
         RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
+        Vector2 spawnPos = cardDeck.GetSpawnPosition(container);
         GameObject newCardObj = Instantiate(cardPrefab, container);
         RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
         newCardRT.anchoredPosition = spawnPos;

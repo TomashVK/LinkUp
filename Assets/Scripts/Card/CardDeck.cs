@@ -84,9 +84,10 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public Vector2 GetSpawnPosition()
+    public Vector2 GetSpawnPosition(RectTransform relativeTo)
     {
-        return transform.localPosition;
+        if (relativeTo == null) return transform.localPosition;
+        return relativeTo.InverseTransformPoint(transform.position);
     }
 
     public void UpdateDeckVisual()

@@ -47,8 +47,9 @@ public class LinearCardLayout
         RectTransform canvasRT = rootCanvas != null ? rootCanvas.GetComponent<RectTransform>() : null;
         Camera uiCam = rootCanvas != null ? rootCanvas.worldCamera : null;
 
+        RectTransform cardParentRT = cards[0].GetComponent<RectTransform>().parent as RectTransform;
         float leftBound, rightBound;
-        RectTransform refRT = anchorRT.parent as RectTransform ?? canvasRT;
+        RectTransform refRT = cardParentRT ?? canvasRT ?? anchorRT.parent as RectTransform;
         if (refRT != null)
         {
             Rect sa = Screen.safeArea;
@@ -64,8 +65,9 @@ public class LinearCardLayout
         }
 
         float available  = rightBound - leftBound;
-        float anchorLocalX = (float)anchorRT.localPosition.x;
-        float anchorLocalY = (float)anchorRT.localPosition.y;
+        Vector2 anchorInRef = refRT != null ? (Vector2)refRT.InverseTransformPoint(anchorRT.position) : (Vector2)anchorRT.localPosition;
+        float anchorLocalX = anchorInRef.x;
+        float anchorLocalY = anchorInRef.y;
         float centerX    = centerOnSafeArea ? (leftBound + rightBound) / 2f : anchorLocalX;
         float totalWidth = (count - 1) * spacing;
 
