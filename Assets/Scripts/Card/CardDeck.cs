@@ -80,8 +80,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         if (remaining > 0)
         {
             int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
-            deckVisual.sprite = deckVisualSprites[level];
-            deckVisual.SetNativeSize();
+            ApplyDeckSpriteLevel(level);
         }
     }
 
@@ -101,8 +100,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
             if (hasCards && deckVisualSprites != null && deckVisualSprites.Length > 0)
             {
                 int level = Mathf.Clamp(remaining - 1, 0, deckVisualSprites.Length - 1);
-                deckVisual.sprite = deckVisualSprites[level];
-                deckVisual.SetNativeSize();
+                ApplyDeckSpriteLevel(level);
             }
         }
 
@@ -165,6 +163,16 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
             c.sortingOrder = -5;
 
         return bg;
+    }
+
+    private void ApplyDeckSpriteLevel(int level)
+    {
+        deckVisual.sprite = deckVisualSprites[level];
+        float beforeHeight = deckVisual.rectTransform.rect.height;
+        deckVisual.SetNativeSize();
+        float afterHeight = deckVisual.rectTransform.rect.height;
+        if (deckCountText != null)
+            deckCountText.rectTransform.anchoredPosition += new Vector2(0, afterHeight - beforeHeight);
     }
 
     private void RefreshCountText()
