@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 264925609241443b49725c9ce6c23150
+guid: 37442e509c8404bdc9f9abfb30957eeb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4481166893143591850
-    second: reverse_0
+      213: 6898655507720547393
+    second: coinHudContainer_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: reverse_0
+      name: coinHudContainer_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 186
-        height: 181
+        width: 280
+        height: 72
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: aab801d0c8d403e30800000000000000
-      internalID: 4481166893143591850
+      spriteID: 14ca97532a2fcbf50800000000000000
+      internalID: 6898655507720547393
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      reverse_0: 4481166893143591850
+      coinHudContainer_0: 6898655507720547393
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
