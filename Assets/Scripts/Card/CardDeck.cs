@@ -32,6 +32,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return null;
 
         RectTransform deckRT = deckVisual.rectTransform;
+        RectTransform parentRT = parent as RectTransform;
 
         // Build at deck position so the text clone's worldPositionStays:true gives the correct local offset
         GameObject visual = new GameObject("TravelingCardBack", typeof(RectTransform), typeof(Image));
@@ -53,12 +54,13 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
             if (t != null) t.text = displayCount.ToString();
         }
 
-        // Now move to card — center it so it covers the card face
+        // Now move to card — center it and match the card's own size so it isn't stretched to the deck's size
         visual.transform.SetParent(parent, worldPositionStays: false);
         visualRT.anchorMin        = new Vector2(0.5f, 0.5f);
         visualRT.anchorMax        = new Vector2(0.5f, 0.5f);
         visualRT.pivot            = new Vector2(0.5f, 0.5f);
         visualRT.anchoredPosition = Vector2.zero;
+        if (parentRT != null) visualRT.sizeDelta = parentRT.rect.size;
 
         return visual;
     }
@@ -68,6 +70,7 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return null;
 
         RectTransform deckRT = deckVisual.rectTransform;
+        RectTransform parentRT = parent as RectTransform;
 
         GameObject visual = new GameObject("TravelingCardBack", typeof(RectTransform), typeof(Image));
         visual.transform.SetParent(deckRT.parent, worldPositionStays: false);
@@ -80,7 +83,13 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         visualRT.sizeDelta        = deckRT.sizeDelta;
         visual.GetComponent<Image>().sprite = deckVisualSprites[0];
 
-        visual.transform.SetParent(parent, worldPositionStays: true);
+        // Recenter on the card and match its size so it isn't stretched to the deck's size
+        visual.transform.SetParent(parent, worldPositionStays: false);
+        visualRT.anchorMin        = new Vector2(0.5f, 0.5f);
+        visualRT.anchorMax        = new Vector2(0.5f, 0.5f);
+        visualRT.pivot            = new Vector2(0.5f, 0.5f);
+        visualRT.anchoredPosition = Vector2.zero;
+        if (parentRT != null) visualRT.sizeDelta = parentRT.rect.size;
 
         if (deckCountText != null)
         {

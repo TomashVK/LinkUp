@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d5e242bccf4194c4ab87c0e97b2c619d
+guid: c91cc04ec8a5b4de5a195ee6847284ce
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7311622499146734682
-    second: wildCard_0
+      213: -4490739410174130533
+    second: "wildCard\u05D5Button_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: wildCard_0
+      name: "wildCard\u05D5Button_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 237
-        height: 313
+        width: 163
+        height: 217
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a5c1561ace9187560800000000000000
-      internalID: 7311622499146734682
+      spriteID: b9649b5ac40bda1c0800000000000000
+      internalID: -4490739410174130533
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      wildCard_0: 7311622499146734682
+      "wildCard\u05D5Button_0": -4490739410174130533
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

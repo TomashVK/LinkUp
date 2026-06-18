@@ -12,15 +12,10 @@ public class HandManager : MonoBehaviour
     [SerializeField] private int maxHandSize;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private CardDeck cardDeck;
-    [SerializeField] private float spacing = 160f;
+    [SerializeField] private float cardSpacing = 80f;
     [SerializeField] private float margin = 50f;
     [SerializeField] private RevealPile revealPile;
     [SerializeField] private RectTransform cardContainer;
-    [SerializeField] private float flipHalfDuration = 0.15f;
-    [SerializeField] private float dealStagger = 0.12f;
-    [SerializeField] private float cardMoveDuration = 0.25f;
-    [Range(0f, 1f)]
-    [SerializeField] private float flipStartPercent = 0.9f;
 
     private readonly List<Card> handCards = new();
     private readonly HashSet<Card> draggedFromHand = new();
@@ -36,7 +31,7 @@ public class HandManager : MonoBehaviour
 
     private void Awake()
     {
-        layout = new LinearCardLayout(transform, spacing, margin, centerOnSafeArea: true);
+        layout = new LinearCardLayout(transform, cardSpacing, margin, centerOnSafeArea: true);
     }
 
     private void OnEnable()
@@ -89,11 +84,12 @@ public class HandManager : MonoBehaviour
         for (int i = 0; i < handSize; i++)
         {
             int captured = i;
-            StartCoroutine(DealCard(card => {
+            StartCoroutine(DealCard(card =>
+            {
                 card.SetShadowSide(false);
                 handCards.Add(card);
                 UpdateCardPositions();
-            }, (captured + 1) * dealStagger, () => completed++));
+            }, (captured + 1) * CardAnimationSettings.Instance.DealStagger, () => completed++));
         }
 
         yield return new WaitUntil(() => completed >= total);
@@ -123,13 +119,13 @@ public class HandManager : MonoBehaviour
 
         onPlaced?.Invoke(card);
 
-        yield return new WaitForSeconds(cardMoveDuration * flipStartPercent);
-        yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
+        yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         if (backVisualObj != null) Destroy(backVisualObj);
         card.Init(data);
 
-        yield return newCardObj.transform.DOScaleX(1f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return newCardObj.transform.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         onDone?.Invoke();
     }
@@ -217,9 +213,9 @@ public class HandManager : MonoBehaviour
 
         onPlaced?.Invoke(card);
 
-        yield return new WaitForSeconds(cardMoveDuration * flipStartPercent);
+        yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
 
-        yield return newCardObj.transform.DOScaleX(0f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         // Swap: remove back face, reveal card prefab (same as original mid-flip reveal)
         if (backVisualObj != null) Destroy(backVisualObj);
@@ -227,7 +223,7 @@ public class HandManager : MonoBehaviour
         UndoManager.Instance?.RecordDraw(card);
 
         // Second half of flip — card face unfolds into view
-        yield return newCardObj.transform.DOScaleX(1f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return newCardObj.transform.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         isDrawing = false;
         IsAnimating = false;

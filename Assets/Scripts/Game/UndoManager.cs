@@ -11,8 +11,6 @@ public class UndoManager : MonoBehaviour
     [SerializeField] private RevealPile revealPile;
     [SerializeField] private ActiveCardSlot activeCardSlot;
     [SerializeField] private CardDeck cardDeck;
-    [SerializeField] private float undoAnimDuration = 0.25f;
-    [SerializeField] private float undoFlipHalfDuration = 0.15f;
 
     private enum MoveType { Draw, PileToHand, PlayToSlot, DeckRestart }
 
@@ -184,15 +182,25 @@ public class UndoManager : MonoBehaviour
 
         Vector2 deckPos = cardDeck.GetSpawnPosition(container);
 
+        float undoStart = Time.realtimeSinceStartup;
         rt.DOKill();
-        yield return rt.DOScaleX(0f, undoFlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+
+        // Move starts immediately and runs in the background, mirroring how the
+        // forward draw's hand-layout move tween overlaps with its flip.
+        rt.DOAnchorPos(deckPos, CardAnimationSettings.Instance.MoveDuration).SetEase(Ease.Linear);
+
+        yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
+
+        yield return rt.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         GameObject backVisual = cardDeck.CreateBackVisualOnCard(rt, cardDeck.RemainingCount + 1);
 
-        yield return rt.DOScaleX(1f, undoFlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return rt.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        float afterFlipIn = Time.realtimeSinceStartup;
 
-        rt.DOAnchorPos(deckPos, undoAnimDuration);
-        yield return new WaitForSeconds(undoAnimDuration);
+        // Make sure the move tween has actually reached deckPos before we destroy the card.
+        float remainingMove = CardAnimationSettings.Instance.MoveDuration - (afterFlipIn - undoStart);
+        if (remainingMove > 0f) yield return new WaitForSeconds(remainingMove);
 
         if (backVisual != null) Destroy(backVisual);
         revealPile.RemoveCardSilently(card);
