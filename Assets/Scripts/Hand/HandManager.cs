@@ -112,17 +112,16 @@ public class HandManager : MonoBehaviour
         newCardRT.anchoredPosition = spawnPos;
         newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
 
-        GameObject backVisualObj = cardDeck.CreateTravelingVisual(newCardObj.transform, countBeforeDraw);
-
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
+        card.ShowBack(countBeforeDraw);
 
         onPlaced?.Invoke(card);
 
         yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
         yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
-        if (backVisualObj != null) Destroy(backVisualObj);
+        card.HideBack();
         card.Init(data);
 
         yield return newCardObj.transform.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
@@ -205,11 +204,9 @@ public class HandManager : MonoBehaviour
         newCardRT.anchoredPosition = spawnPos;
         newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
 
-        // Overlay back-face visual (sprite + counter) as a child so it travels with the card
-        GameObject backVisualObj = cardDeck.CreateTravelingVisual(newCardObj.transform, countBeforeDraw);
-
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
+        card.ShowBack(countBeforeDraw);
 
         onPlaced?.Invoke(card);
 
@@ -217,8 +214,8 @@ public class HandManager : MonoBehaviour
 
         yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
-        // Swap: remove back face, reveal card prefab (same as original mid-flip reveal)
-        if (backVisualObj != null) Destroy(backVisualObj);
+        // Swap: reveal card face (same as original mid-flip reveal)
+        card.HideBack();
         card.Init(data);
         UndoManager.Instance?.RecordDraw(card);
 

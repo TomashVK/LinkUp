@@ -153,13 +153,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDeck
   cards: []
   deckVisual: {fileID: 1779884663}
-  deckVisualSprites:
-  - {fileID: 4299955453057199442, guid: e91e891b27fc24d14b796a8a0462a5d8, type: 3}
-  - {fileID: -6019950861799886210, guid: 57490077a32d347989037e935fdae00e, type: 3}
-  - {fileID: -2306979270308866741, guid: 56fb45c8ea5a94031a7858514897d76a, type: 3}
-  - {fileID: 6850996377659659334, guid: 674339ba7c50d432382189a1275a1570, type: 3}
+  cardBackSprite: {fileID: 4299955453057199442, guid: e91e891b27fc24d14b796a8a0462a5d8, type: 3}
   deckCountText: {fileID: 1925927122}
   spawnContainer: {fileID: 1779884661}
+  maxStackLayers: 5
+  stackLayerOffset: {x: 0, y: -10}
 --- !u!114 &33206884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1008,6 +1006,7 @@ GameObject:
   - component: {fileID: 512545807}
   - component: {fileID: 512545808}
   - component: {fileID: 512545809}
+  - component: {fileID: 512545810}
   m_Layer: 5
   m_Name: GameController
   m_TagString: Untagged
@@ -1082,8 +1081,22 @@ MonoBehaviour:
   revealPile: {fileID: 545798891}
   activeCardSlot: {fileID: 1362270049}
   cardDeck: {fileID: 33206883}
-  undoAnimDuration: 0.25
-  undoFlipHalfDuration: 0.15
+--- !u!114 &512545810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512545805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee91df67cd53f4eff9f0141e730e0498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardAnimationSettings
+  moveDuration: 0.2
+  flipHalfDuration: 0.1
+  dealStagger: 0.08
+  flipStartPercent: 0.2
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1391,7 +1404,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7311622499146734682, guid: d5e242bccf4194c4ab87c0e97b2c619d, type: 3}
+  m_Sprite: {fileID: -4490739410174130533, guid: c91cc04ec8a5b4de5a195ee6847284ce, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2729,7 +2742,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0.000030517578, y: 1}
   m_SizeDelta: {x: 230, y: 311}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &1779884662
@@ -2753,14 +2766,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6850996377659659334, guid: 674339ba7c50d432382189a1275a1570, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2939,14 +2952,10 @@ MonoBehaviour:
   maxHandSize: 100
   cardPrefab: {fileID: 1396578861839730735, guid: dad2442495b0244ff80a91f84158c392, type: 3}
   cardDeck: {fileID: 33206883}
-  spacing: 80
+  cardSpacing: 80
   margin: 240
   revealPile: {fileID: 545798891}
   cardContainer: {fileID: 165791192}
-  flipHalfDuration: 0.15
-  dealStagger: 0.12
-  cardMoveDuration: 0.05
-  flipStartPercent: 0.8
 --- !u!224 &2041455342
 RectTransform:
   m_ObjectHideFlags: 0

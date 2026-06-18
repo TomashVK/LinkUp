@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour,
     IPointerDownHandler, IDragHandler, IPointerUpHandler, IInitializePotentialDragHandler
-{    
+{
     private const int dragSortingOrder = 999;
 
     public static event System.Action<Card> Dropped;
@@ -20,8 +20,10 @@ public class Card : MonoBehaviour,
     [SerializeField] private float nudgeDamping = 7f;
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
+    [SerializeField] private TMP_Text backCountVisual;
     [SerializeField] private Sprite cardLeftShadow;
     [SerializeField] private Sprite cardRightShadow;
+    [SerializeField] private Sprite cardBackSprite;
 
     public int CurrentSortingOrder { get; private set; }
     public int RestingSortOrder => restingSortingOrder;
@@ -41,6 +43,8 @@ public class Card : MonoBehaviour,
     private Image image;
     private RectTransform canvasRect;
     private Camera uiCamera;
+    private Sprite currentFaceSprite;
+    private bool isShowingBack;
 
     private RectTransform CanvasRect
     {
@@ -61,8 +65,6 @@ public class Card : MonoBehaviour,
         canvas = GetComponent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
-        CurrentSortingOrder = canvas != null ? canvas.sortingOrder : 0;
-        restingSortingOrder = CurrentSortingOrder;
     }
 
     private void Start()
@@ -90,14 +92,36 @@ public class Card : MonoBehaviour,
 
     private void ApplyOrientation(bool isHorizontal)
     {
+        if (isShowingBack) return;
         if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(isHorizontal);
         if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal);
     }
 
     public void SetShadowSide(bool useRight)
     {
-        if (image == null) return;
-        image.sprite = useRight ? cardRightShadow : cardLeftShadow;
+        currentFaceSprite = useRight ? cardRightShadow : cardLeftShadow;
+        if (!isShowingBack && image != null) image.sprite = currentFaceSprite;
+    }
+
+    public void ShowBack(int count)
+    {
+        isShowingBack = true;
+        if (image != null) image.sprite = cardBackSprite;
+        if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(false);
+        if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(false);
+        if (backCountVisual != null)
+        {
+            backCountVisual.gameObject.SetActive(true);
+            backCountVisual.text = count.ToString();
+        }
+    }
+
+    public void HideBack()
+    {
+        isShowingBack = false;
+        if (image != null && currentFaceSprite != null) image.sprite = currentFaceSprite;
+        if (backCountVisual != null) backCountVisual.gameObject.SetActive(false);
+        ApplyOrientation(restingHorizontal);
     }
 
     public void SetDraggable(bool draggable)

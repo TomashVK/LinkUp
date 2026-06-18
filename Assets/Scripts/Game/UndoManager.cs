@@ -193,7 +193,7 @@ public class UndoManager : MonoBehaviour
 
         yield return rt.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
-        GameObject backVisual = cardDeck.CreateBackVisualOnCard(rt, cardDeck.RemainingCount + 1);
+        card.ShowBack(cardDeck.RemainingCount + 1);
 
         yield return rt.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
         float afterFlipIn = Time.realtimeSinceStartup;
@@ -202,7 +202,6 @@ public class UndoManager : MonoBehaviour
         float remainingMove = CardAnimationSettings.Instance.MoveDuration - (afterFlipIn - undoStart);
         if (remainingMove > 0f) yield return new WaitForSeconds(remainingMove);
 
-        if (backVisual != null) Destroy(backVisual);
         revealPile.RemoveCardSilently(card);
         Destroy(card.gameObject);
         cardDeck.UndrawLast();
