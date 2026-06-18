@@ -14,7 +14,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private ContinuePanel continuePanel;
     [SerializeField] private TMP_Text moveCountText;
     [SerializeField] private GameObject winPanel;
-    [SerializeField] private TMP_Text winStarsText;
+    [SerializeField] private HudStarDisplay hudStarDisplay;
 
     private ConnectionGraph graph;
     private LevelDefinition level;
@@ -53,6 +53,7 @@ public class GameController : MonoBehaviour
         }
 
         moveCounter.Init(level.maxMoves);
+        if (hudStarDisplay != null) hudStarDisplay.Init(level.maxMoves, level.optimalMoves);
         RefreshMoveHUD();
 
         if (winPanel != null) winPanel.SetActive(false);
@@ -81,11 +82,6 @@ public class GameController : MonoBehaviour
 
     private void ShowWin()
     {
-        int spent = moveCounter.TotalMovesSpent;
-        int stars = spent <= level.threeStarMoves ? 3 :
-                    spent <= level.twoStarMoves   ? 2 : 1;
-        if (winStarsText != null)
-            winStarsText.text = new string('★', stars) + new string('☆', 3 - stars);
         if (winPanel != null) winPanel.SetActive(true);
     }
 

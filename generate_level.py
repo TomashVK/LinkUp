@@ -16,12 +16,14 @@ Questions asked at runtime:
   2. Cards in starting hand     — how many the player holds at the start
   3. Minimum branch points      — fewest wrong-path traps acceptable
   4. Maximum branch points      — most wrong-path traps acceptable (99 = unlimited)
-  5. Move buffer                — extra moves above optimal before continue panel triggers;
-                                  also sets the gap between star thresholds
+  5. Max-moves multiplier       — maxMoves = optimalMoves × this value (2–8; recommend 3).
+                                  Higher = more buffer above optimal before game over.
   6. Number of variants         — how many shuffled versions of the level to generate
 """
 
 import json, random, re, sys
+from collections import deque
+from itertools import permutations
 from pathlib import Path
 
 DATA_DIR   = Path(__file__).parent / "Assets/Resources/Data"
@@ -96,65 +98,116 @@ def find_chain(graph, all_ids, start, length, attempts=400):
     return None
 
 
-# ─── Move cost calculation ────────────────────────────────────────────────────
+# ─── Optimal play finder ─────────────────────────────────────────────────────
 
-def min_moves_for_chain(chain, hand_set):
+def bfs_bridge(graph, start, end, allowed_intermediates):
     """
-    Minimum moves to empty hand_set while following chain.
-    Each hand card played costs 1 move.
-    Each deck card drawn+played costs 2 moves (draw to pile + play from pile).
+    Shortest path from `start` to `end`.
+    Intermediate nodes must be in `allowed_intermediates`.
+    Returns the full path [start, ..., end], or None.
     """
-    chain_pos = {c: i for i, c in enumerate(chain)}
-    last = max((chain_pos[c] for c in hand_set if c in chain_pos), default=0)
-    optimal = chain[1:last + 1]
-    hand_plays = sum(1 for c in optimal if c in hand_set)
-    deck_plays = sum(1 for c in optimal if c not in hand_set)
-    return hand_plays + deck_plays * 2
+    if end in graph.get(start, {}):
+        return [start, end]
+    queue = deque([(start, [start])])
+    visited = {start}
+    while queue:
+        node, path = queue.popleft()
+        for nb in graph.get(node, {}):
+            if nb in visited:
+                continue
+            new_path = path + [nb]
+            if nb == end:
+                return new_path
+            if nb in allowed_intermediates:
+                visited.add(nb)
+                queue.append((nb, new_path))
+    return None
 
 
-def deck_draws_needed(chain, hand_set):
-    """Number of deck cards that must be drawn in the optimal path (for Rule 1)."""
-    chain_pos = {c: i for i, c in enumerate(chain)}
-    last = max((chain_pos[c] for c in hand_set if c in chain_pos), default=0)
-    return sum(1 for c in chain[1:last + 1] if c not in hand_set)
+def find_optimal_play(graph, active, hand, deck_ids):
+    """
+    Find minimum-cost path to play all `hand` cards starting from `active`.
+
+    Cost: each deck card drawn + played costs 2; each hand card played costs 1.
+    Tries all orderings of hand cards and picks the cheapest.
+
+    Returns (cost, full_path) — full_path is the complete card sequence
+    [active, ..., last_hand_card] — or (None, None) if no valid path exists.
+    """
+    deck_set = set(deck_ids)
+    best_cost = float('inf')
+    best_path = None
+
+    for perm in permutations(hand):
+        current = active
+        cost    = 0
+        path    = [active]
+        used    = set()
+        ok      = True
+
+        for target in perm:
+            available = deck_set - used - set(path)
+            seg = bfs_bridge(graph, current, target, available)
+            if seg is None:
+                ok = False
+                break
+            bridges = seg[1:-1]          # intermediate deck cards
+            cost   += len(bridges) * 2 + 1
+            path.extend(seg[1:])
+            used.update(bridges)
+            current = target
+
+        if ok and cost < best_cost:
+            best_cost = cost
+            best_path = path
+
+    return (best_cost, best_path) if best_path is not None else (None, None)
 
 
 # ─── Variant helpers ──────────────────────────────────────────────────────────
 
-def make_variant(chain, hand_size):
+def make_variant(graph, active, pool_set, hand_size):
     """
-    Randomly split chain[1:] into hand / deck.
-    Returns (hand, deck, min_moves) or None.
+    Randomly split the pool (minus active) into hand / deck.
+    Uses find_optimal_play to get the true minimum-cost path.
+    Returns (hand, deck, min_moves, opt_path) or None.
     """
-    playable = chain[1:]
-    if hand_size > len(playable):
+    pool_list = list(pool_set - {active})
+    if hand_size > len(pool_list):
         return None
 
-    chain_pos = {c: i for i, c in enumerate(chain)}
-    sorted_hand_key = lambda c: chain_pos.get(c, 0)
-
     for _ in range(800):
-        shuffled = list(playable)
+        shuffled = list(pool_list)
         random.shuffle(shuffled)
         hand     = shuffled[:hand_size]
         hand_set = set(hand)
-        draws    = deck_draws_needed(chain, hand_set)
+        deck_set = set(shuffled[hand_size:])
 
+        cost, opt_path = find_optimal_play(graph, active, hand, deck_set)
+        if cost is None:
+            continue
+
+        # Rule 1: at least one deck draw required
+        draws = sum(1 for c in opt_path[1:] if c in deck_set)
         if draws < 1:
-            continue   # Rule 1: at least one deck draw required
+            continue
 
-        # Rule 2: hand must not be in solve order
-        sorted_hand = sorted(hand, key=sorted_hand_key)
+        # Rule 2: hand must not be in optimal-play order
+        opt_pos     = {c: i for i, c in enumerate(opt_path)}
+        sorted_hand = sorted(hand, key=lambda c: opt_pos.get(c, len(opt_path)))
         for _ in range(50):
             random.shuffle(hand)
             if hand != sorted_hand:
                 break
         else:
-            continue   # couldn't unsort — skip this split
+            continue
 
-        deck      = [c for c in playable if c not in hand_set]
-        min_moves = min_moves_for_chain(chain, hand_set)
-        return hand, deck, min_moves
+        # Order deck: cards needed in optimal path first, extras after
+        opt_deck   = [c for c in opt_path if c in deck_set]
+        extra_deck = [c for c in deck_set if c not in set(opt_deck)]
+        deck       = opt_deck + extra_deck
+
+        return hand, deck, cost, opt_path
 
     return None
 
@@ -230,15 +283,15 @@ def main():
     min_branches = prompt_int("3. Min branch points / traps (0–10)", 0, 10)
     max_branches = prompt_int(f"4. Max branch points / traps ({min_branches}–99, or 99 for unlimited)",
                               min_branches, 99)
-    buffer       = prompt_int("5. Move buffer — extra moves above optimal before continue panel "
-                              "triggers (1–15; lower = harder star thresholds)", 1, 15)
+    multiplier   = prompt_int("5. Max-moves multiplier (2–8; 3 recommended — "
+                              "maxMoves = optimalMoves × multiplier)", 2, 8)
     num_variants = prompt_int("6. Number of variants to generate (1–6)", 1, 6)
 
     deck_size = total_cards - hand_size
 
     print(f"\n{total_cards} cards ({hand_size} hand + {deck_size} deck), "
           f"{min_branches}–{max_branches} branch points, "
-          f"move buffer ×{buffer}")
+          f"max-moves multiplier ×{multiplier}")
 
     level_id = next_level_id()
     print(f"Generating level {level_id} with {num_variants} variant(s)...\n")
@@ -299,23 +352,17 @@ def main():
         used_actives.add(active)
         branches = find_branch_points(graph, chain)
 
-        result = make_variant(chain, hand_size)
+        result = make_variant(graph, active, pool_set, hand_size)
         if result is None:
             print(f"  Variant {v + 1}: FAILED — could not satisfy constraints, skipping.")
             continue
 
-        hand, deck, min_moves = result
+        hand, deck, min_moves, opt_path = result
         hand_set = set(hand)
 
-        three_star = min_moves
-        two_star   = min_moves + buffer
-        max_moves  = min_moves + buffer * 2
+        max_moves = min_moves * multiplier
 
-        chain_pos     = {c: i for i, c in enumerate(chain)}
-        last_hand_pos = max(chain_pos[c] for c in hand_set)
-        optimal_chain = chain[:last_hand_pos + 1]
-
-        path_desc  = make_path_desc(optimal_chain, hand_set)
+        path_desc  = make_path_desc(opt_path, hand_set)
         worst_path = " → ".join(chain) + f"  ({len(deck)} draws, {max_moves} moves)"
 
         branch_summary = ", ".join(
@@ -324,7 +371,7 @@ def main():
         ) if branches else "none"
 
         print(f"  Variant {v + 1}: active={active}  hand={hand}  deck={deck}")
-        print(f"    minMoves={min_moves}  3★≤{three_star}  2★≤{two_star}  maxMoves={max_moves}"
+        print(f"    optimalMoves={min_moves}  maxMoves={max_moves}"
               f"  branches=[{branch_summary}]")
 
         variants.append({
@@ -332,9 +379,8 @@ def main():
             "hand":            hand,
             "deck":            deck,
             "maxMoves":        max_moves,
-            "threeStarMoves":  three_star,
-            "twoStarMoves":    two_star,
-            "optimalPath":     list(optimal_chain),
+            "optimalMoves":    min_moves,
+            "optimalPath":     list(opt_path),
             "pathDescription": path_desc,
             "worstPath":       worst_path,
         })

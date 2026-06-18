@@ -26,8 +26,7 @@ public class LevelDefinition
     public string[] hand;
     public string[] deck;
     public int maxMoves;
-    public int threeStarMoves;
-    public int twoStarMoves;
+    public int optimalMoves;
 }
 
 [System.Serializable]

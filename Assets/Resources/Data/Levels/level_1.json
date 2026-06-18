@@ -1,13 +1,12 @@
 [
   {
-    "activeCard": "wind",
-    "hand": ["duck", "milk", "leaf", "horse", "sun", "bee", "egg", "apple", "cheese", "acorn"],
-    "deck": ["snow", "deer", "log", "bird", "cow", "carrot", "berry", "honey", "jam", "cat"],
-    "maxMoves": 32,
-    "threeStarMoves": 30,
-    "twoStarMoves": 31,
-    "optimalPath": ["wind", "duck", "sun", "snow", "deer", "leaf", "log", "acorn", "bird", "egg", "cow", "carrot", "berry", "bee", "honey", "jam", "apple", "horse", "cat", "milk", "cheese"],
-    "pathDescription": "wind → duck → sun → [draw snow] → snow → [draw deer] → deer → leaf → [draw log] → log → acorn → [draw bird] → bird → egg → [draw cow] → cow → [draw carrot] → carrot → [draw berry] → berry → bee → [draw honey] → honey → [draw jam] → jam → apple → horse → [draw cat] → cat → milk → cheese",
-    "worstPath": "wind → duck → sun → snow → deer → leaf → log → acorn → bird → egg → cow → carrot → berry → bee → honey → jam → apple → horse → cat → milk → cheese  (10 draws, 32 moves)"
+    "activeCard": "bee",
+    "hand": ["bird", "deer", "snow", "wind", "rain", "ice", "cat", "wolf"],
+    "deck": ["bush", "pond", "sun", "butterfly", "fox", "frog", "cloud"],
+    "maxMoves": 30,
+    "optimalMoves": 10,
+    "optimalPath": ["bee", "bush", "deer", "snow", "ice", "rain", "wind", "bird", "cat", "wolf"],
+    "pathDescription": "bee → [draw bush] → bush → deer → snow → ice → rain → wind → bird → cat → wolf",
+    "worstPath": "bee → butterfly → bush → bird → sun → wind → cloud → snow → ice → rain → pond → frog → wolf → deer → cat → fox  (7 draws, 30 moves)"
   }
 ]
