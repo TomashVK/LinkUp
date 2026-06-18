@@ -1007,6 +1007,7 @@ GameObject:
   - component: {fileID: 512545806}
   - component: {fileID: 512545807}
   - component: {fileID: 512545808}
+  - component: {fileID: 512545809}
   m_Layer: 5
   m_Name: GameController
   m_TagString: Untagged
@@ -1065,6 +1066,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68af5f89b5a384cbe82235b7601adb53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+--- !u!114 &512545809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512545805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b700d6e4a4034cf8852db50b03f7d1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndoManager
+  handManager: {fileID: 2041455341}
+  revealPile: {fileID: 545798891}
+  activeCardSlot: {fileID: 1362270049}
+  cardDeck: {fileID: 33206883}
+  undoAnimDuration: 0.25
+  undoFlipHalfDuration: 0.15
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1191,8 +1210,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58ffb5168996e4868919fd3ad4732d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RevealPile
-  visibleCount: 3
-  spacing: 80
 --- !u!222 &545798892
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1828,6 +1845,7 @@ GameObject:
   - component: {fileID: 970776231}
   - component: {fileID: 970776233}
   - component: {fileID: 970776232}
+  - component: {fileID: 970776234}
   m_Layer: 5
   m_Name: ReversButton (1)
   m_TagString: Untagged
@@ -1892,6 +1910,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 970776230}
   m_CullTransparentMesh: 1
+--- !u!114 &970776234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 970776230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 279a1fd7b7eb84eaeb0748a1a920e28c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RevertButton
 --- !u!1 &1054705958
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,6 +2123,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a44e33975390f4d799436b2753b71be5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveCardSlot
+  dropOffset: {x: 6, y: -4}
+  rotationMin: -15
+  rotationMax: 15
 --- !u!114 &1362270050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2147,14 +2180,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.21960784, g: 0.21960784, b: 0.21960784, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 808123858638102295, guid: 59bf02b2b58384d488ebaacd0134e871, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2188,8 +2221,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -759}
-  m_SizeDelta: {x: 260, y: 350}
+  m_AnchoredPosition: {x: 0, y: -768}
+  m_SizeDelta: {x: 257, y: 351}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1365708776
 GameObject:
