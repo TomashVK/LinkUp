@@ -46,6 +46,8 @@ public class MoveCounter : MonoBehaviour
         MovesChanged?.Invoke();
     }
 
+    public void SpendMove() => OnMoveSpent();
+
     private void OnMoveSpent()
     {
         MovesRemaining = Mathf.Max(0, MovesRemaining - 1);

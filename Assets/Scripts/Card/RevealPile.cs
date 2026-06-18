@@ -1,28 +1,16 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class RevealPile : MonoBehaviour
 {
     public static event System.Action CardDrawnToRevealPile;
 
-    [SerializeField] private int visibleCount = 3;
-    [SerializeField] private float spacing = 80f;
-
     private readonly List<Card> pileCards = new();
-    private LinearCardLayout layout;
 
     public bool HasCards => pileCards.Count > 0;
     public bool IsCardInPile(Card card) => pileCards.Contains(card);
     public IReadOnlyList<Card> PileCards => pileCards;
-
-    private void Awake()
-    {
-        layout = new LinearCardLayout(transform, spacing, rightAnchored: true)
-        {
-            Mirrored = true,
-            UseVerticalRight = true
-        };
-    }
 
     private void OnEnable()
     {
@@ -47,16 +35,32 @@ public class RevealPile : MonoBehaviour
     {
         pileCards.Add(card);
         card.SetShadowSide(true);
-        RefreshVisibility();
         UpdateDraggability();
         UpdateCardPositions();
         CardDrawnToRevealPile?.Invoke();
     }
 
+    public void InsertCardAt(Card card, int index)
+    {
+        index = Mathf.Clamp(index, 0, pileCards.Count);
+        card.SetShadowSide(true);
+        pileCards.Insert(index, card);
+        UpdateDraggability();
+        UpdateCardPositions();
+    }
+
+    public int IndexOf(Card card) => pileCards.IndexOf(card);
+
+    public void RemoveCardSilently(Card card)
+    {
+        if (!pileCards.Remove(card)) return;
+        UpdateDraggability();
+        UpdateCardPositions();
+    }
+
     private void OnCardDropped(Card card)
     {
         if (!pileCards.Remove(card)) return;
-        RefreshVisibility();
         UpdateDraggability();
         UpdateCardPositions();
     }
@@ -65,16 +69,6 @@ public class RevealPile : MonoBehaviour
     {
         if (pileCards.Contains(card))
             UpdateCardPositions();
-    }
-
-    private void RefreshVisibility()
-    {
-        int count = pileCards.Count;
-        for (int i = 0; i < count; i++)
-        {
-            bool visible = i >= count - visibleCount;
-            SetCardVisible(pileCards[i], visible);
-        }
     }
 
     private void UpdateDraggability()
@@ -86,19 +80,23 @@ public class RevealPile : MonoBehaviour
 
     private void UpdateCardPositions()
     {
-        int count = pileCards.Count;
-        int visibleStart = Mathf.Max(0, count - visibleCount);
-        var visibleCards = new List<Card>(visibleCount);
-        for (int i = visibleStart; i < count; i++)
-            visibleCards.Add(pileCards[i]);
-        layout.PlaceCards(visibleCards);
-    }
+        if (pileCards.Count == 0) return;
 
-    private static void SetCardVisible(Card card, bool visible)
-    {
-        CanvasGroup cg = card.GetComponent<CanvasGroup>();
-        if (cg == null) return;
-        cg.alpha = visible ? 1f : 0f;
-        cg.blocksRaycasts = visible;
+        RectTransform anchorRT = transform as RectTransform;
+        RectTransform cardParent = pileCards[0].GetComponent<RectTransform>().parent as RectTransform;
+        Vector2 stackPos = cardParent != null
+            ? (Vector2)cardParent.InverseTransformPoint(anchorRT.position)
+            : (Vector2)anchorRT.localPosition;
+
+        for (int i = 0; i < pileCards.Count; i++)
+        {
+            if (pileCards[i].IsDragging) continue;
+            RectTransform rt = pileCards[i].GetComponent<RectTransform>();
+            string tweenId = "pile:" + rt.GetInstanceID();
+            DOTween.Kill(tweenId);
+            rt.DOAnchorPos(stackPos, 0.25f).SetId(tweenId);
+            rt.DOLocalRotateQuaternion(Quaternion.identity, 0.25f).SetId(tweenId);
+            pileCards[i].SetSortingOrder(i + 1);
+        }
     }
 }

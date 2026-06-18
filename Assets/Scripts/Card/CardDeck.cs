@@ -19,6 +19,50 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
 
     public bool HasCards => drawIndex < cards.Length;
     public int RemainingCount => cards.Length - drawIndex;
+    public int DrawIndex => drawIndex;
+    public CardData[] GetCurrentCards() => (CardData[])cards.Clone();
+    public void RestoreState(CardData[] savedCards, int savedDrawIndex)
+    {
+        cards = savedCards;
+        drawIndex = savedDrawIndex;
+        UpdateDeckVisual();
+    }
+    public GameObject CreateBackVisualOnCard(Transform parent, int displayCount)
+    {
+        if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return null;
+
+        RectTransform deckRT = deckVisual.rectTransform;
+
+        // Build at deck position so the text clone's worldPositionStays:true gives the correct local offset
+        GameObject visual = new GameObject("TravelingCardBack", typeof(RectTransform), typeof(Image));
+        visual.transform.SetParent(deckRT.parent, worldPositionStays: false);
+
+        RectTransform visualRT = visual.GetComponent<RectTransform>();
+        visualRT.pivot            = deckRT.pivot;
+        visualRT.anchorMin        = deckRT.anchorMin;
+        visualRT.anchorMax        = deckRT.anchorMax;
+        visualRT.anchoredPosition = deckRT.anchoredPosition;
+        visualRT.sizeDelta        = deckRT.sizeDelta;
+        visual.GetComponent<Image>().sprite = deckVisualSprites[0];
+
+        if (deckCountText != null)
+        {
+            GameObject textClone = Instantiate(deckCountText.gameObject, visual.transform, worldPositionStays: true);
+            textClone.SetActive(true);
+            TMP_Text t = textClone.GetComponent<TMP_Text>();
+            if (t != null) t.text = displayCount.ToString();
+        }
+
+        // Now move to card — center it so it covers the card face
+        visual.transform.SetParent(parent, worldPositionStays: false);
+        visualRT.anchorMin        = new Vector2(0.5f, 0.5f);
+        visualRT.anchorMax        = new Vector2(0.5f, 0.5f);
+        visualRT.pivot            = new Vector2(0.5f, 0.5f);
+        visualRT.anchoredPosition = Vector2.zero;
+
+        return visual;
+    }
+
     public GameObject CreateTravelingVisual(Transform parent, int displayCount)
     {
         if (deckVisual == null || deckVisualSprites == null || deckVisualSprites.Length == 0) return null;
@@ -65,6 +109,11 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
         var data = cards[drawIndex++];
         RefreshCountText();
         return data;
+    }
+
+    public void UndrawLast()
+    {
+        if (drawIndex > 0) drawIndex--;
     }
 
     public void HideDeckVisual()

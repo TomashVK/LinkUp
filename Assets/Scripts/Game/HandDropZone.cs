@@ -11,6 +11,7 @@ public class HandDropZone : MonoBehaviour, ICardDrop
     {
         if (!revealPile.IsCardInPile(card)) return false;
         if (!handManager.CanAcceptCard()) return false;
+        UndoManager.Instance?.RecordPileToHand(card, revealPile.IndexOf(card));
         handManager.AddCardFromRevealPile(card);
         CardTakenToHand?.Invoke();
         return true;

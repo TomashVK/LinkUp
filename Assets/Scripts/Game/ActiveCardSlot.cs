@@ -32,11 +32,21 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         if (graph == null) return false;
         if (!graph.CanPlay(ActiveCard.Data.gameId, card.Data.gameId)) return false;
 
+        UndoManager.Instance?.RecordPlayToSlot(card);
+
         cardStack.Add(card);
         PlaceCard(card, cardStack.Count);
 
         CardPlayed?.Invoke();
         return true;
+    }
+
+    public Card RemoveTopCard()
+    {
+        if (cardStack.Count == 0) return null;
+        Card top = cardStack[^1];
+        cardStack.RemoveAt(cardStack.Count - 1);
+        return top;
     }
 
     private void PlaceCard(Card card, int sortOrder)

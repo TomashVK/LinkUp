@@ -7,6 +7,7 @@ public class HandManager : MonoBehaviour
 {
     public static event System.Action CardLeftHand;
     public static event System.Action DeckRestarted;
+    public static event System.Action<IReadOnlyList<Card>> BeforeDeckRestart;
 
     [SerializeField] private int maxHandSize;
     [SerializeField] private GameObject cardPrefab;
@@ -28,9 +29,10 @@ public class HandManager : MonoBehaviour
     private LinearCardLayout layout;
     private float handScrollOffset;
 
-    public static bool IsAnimating { get; private set; }
+    public static bool IsAnimating { get; set; }
 
     public int CardCount => handCards.Count;
+    public RectTransform CardContainer => cardContainer;
 
     private void Awake()
     {
@@ -141,6 +143,33 @@ public class HandManager : MonoBehaviour
         UpdateCardPositions();
     }
 
+    public void RemoveCardFromHand(Card card)
+    {
+        handCards.Remove(card);
+        UpdateCardPositions();
+    }
+
+    public void InsertCardAtHand(Card card, int index)
+    {
+        index = Mathf.Clamp(index, 0, handCards.Count);
+        card.SetShadowSide(false);
+        handCards.Insert(index, card);
+        UpdateCardPositions();
+    }
+
+    public int IndexOfCard(Card card) => handCards.IndexOf(card);
+
+    public Card CreateCardFromData(CardData data, Vector2 spawnPos)
+    {
+        RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
+        GameObject newCardObj = Instantiate(cardPrefab, container);
+        newCardObj.GetComponent<RectTransform>().anchoredPosition = spawnPos;
+        Card card = newCardObj.GetComponent<Card>();
+        card.Init(data);
+        card.SetHorizontal(true);
+        return card;
+    }
+
     private void DrawCard()
     {
         if (isDrawing || isDealing) return;
@@ -148,6 +177,7 @@ public class HandManager : MonoBehaviour
         if (MoveCounter.IsOutOfMoves) return;
         if (!cardDeck.HasCards)
         {
+            BeforeDeckRestart?.Invoke(revealPile.PileCards);
             var pileData = new List<CardData>();
             foreach (Card c in revealPile.PileCards) pileData.Add(c.Data);
             revealPile.ClearPile();
@@ -194,6 +224,7 @@ public class HandManager : MonoBehaviour
         // Swap: remove back face, reveal card prefab (same as original mid-flip reveal)
         if (backVisualObj != null) Destroy(backVisualObj);
         card.Init(data);
+        UndoManager.Instance?.RecordDraw(card);
 
         // Second half of flip — card face unfolds into view
         yield return newCardObj.transform.DOScaleX(1f, flipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();

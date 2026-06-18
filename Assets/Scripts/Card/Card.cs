@@ -20,18 +20,17 @@ public class Card : MonoBehaviour,
     [SerializeField] private float nudgeDamping = 7f;
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
-    [SerializeField] private TMP_Text verticalRightVisual;
     [SerializeField] private Sprite cardLeftShadow;
     [SerializeField] private Sprite cardRightShadow;
 
     public int CurrentSortingOrder { get; private set; }
+    public int RestingSortOrder => restingSortingOrder;
     public bool IsDragging => isDragging;
     public bool IsHorizontal => restingHorizontal;
     public CardData Data { get; private set; }
 
     private bool isDragging;
     private bool restingHorizontal;
-    private bool useRightVertical;
     private Vector2 touchOffset;
     private Vector2 startAnchoredPos;
     private int restingSortingOrder;
@@ -89,17 +88,10 @@ public class Card : MonoBehaviour,
         if (!isDragging) ApplyOrientation(isHorizontal);
     }
 
-    public void SetVerticalRight(bool useRight)
-    {
-        useRightVertical = useRight;
-        if (!isDragging && !restingHorizontal) ApplyOrientation(false);
-    }
-
     private void ApplyOrientation(bool isHorizontal)
     {
         if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(isHorizontal);
-        if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal && !useRightVertical);
-        if (verticalRightVisual != null) verticalRightVisual.gameObject.SetActive(!isHorizontal && useRightVertical);
+        if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal);
     }
 
     public void SetShadowSide(bool useRight)

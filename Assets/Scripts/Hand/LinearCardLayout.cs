@@ -13,7 +13,6 @@ public class LinearCardLayout
 
     public float ScrollOffset { get; set; }
     public bool Mirrored { get; set; }
-    public bool UseVerticalRight { get; set; }
 
     public LinearCardLayout(Transform anchor, float spacing, float margin = 0f, bool centerOnSafeArea = false, bool rightAnchored = false)
     {
@@ -108,7 +107,6 @@ public class LinearCardLayout
             cards[i].SetSortingOrder(i + 1);
             bool isTop = i == count - 1;
             cards[i].SetHorizontal(isTop);
-            if (!isTop) cards[i].SetVerticalRight(UseVerticalRight);
         }
     }
 }
