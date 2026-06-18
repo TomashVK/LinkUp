@@ -34,7 +34,6 @@ public class RevealPile : MonoBehaviour
     public void ReceiveCard(Card card)
     {
         pileCards.Add(card);
-        card.SetShadowSide(true);
         UpdateDraggability();
         UpdateCardPositions();
         CardDrawnToRevealPile?.Invoke();
@@ -43,7 +42,6 @@ public class RevealPile : MonoBehaviour
     public void InsertCardAt(Card card, int index)
     {
         index = Mathf.Clamp(index, 0, pileCards.Count);
-        card.SetShadowSide(true);
         pileCards.Insert(index, card);
         UpdateDraggability();
         UpdateCardPositions();

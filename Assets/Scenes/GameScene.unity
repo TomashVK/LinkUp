@@ -1096,7 +1096,7 @@ MonoBehaviour:
   moveDuration: 0.2
   flipHalfDuration: 0.1
   dealStagger: 0.08
-  flipStartPercent: 0.2
+  flipStartPercent: 0.439
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2136,7 +2136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a44e33975390f4d799436b2753b71be5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveCardSlot
-  dropOffset: {x: 6, y: -4}
+  dropOffset: {x: -6, y: -4}
   rotationMin: -15
   rotationMax: 15
 --- !u!114 &1362270050
@@ -2917,7 +2917,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 77, y: 128}
+  m_AnchoredPosition: {x: 77, y: 119}
   m_SizeDelta: {x: 57.19, y: 37.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2041455340

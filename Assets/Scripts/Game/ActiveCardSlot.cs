@@ -59,6 +59,5 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         rt.DOLocalRotate(new Vector3(0f, 0f, angle), 0.25f);
         card.SetHorizontal(true);
         card.SetSortingOrder(sortOrder);
-        card.SetShadowSide(true);
     }
 }

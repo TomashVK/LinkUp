@@ -20,9 +20,6 @@ public class Card : MonoBehaviour,
     [SerializeField] private float nudgeDamping = 7f;
     [SerializeField] private TMP_Text horizontalVisual;
     [SerializeField] private TMP_Text verticalLeftVisual;
-    [SerializeField] private TMP_Text backCountVisual;
-    [SerializeField] private Sprite cardLeftShadow;
-    [SerializeField] private Sprite cardRightShadow;
     [SerializeField] private Sprite cardBackSprite;
 
     public int CurrentSortingOrder { get; private set; }
@@ -65,6 +62,7 @@ public class Card : MonoBehaviour,
         canvas = GetComponent<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
+        currentFaceSprite = image != null ? image.sprite : null;
     }
 
     private void Start()
@@ -97,30 +95,18 @@ public class Card : MonoBehaviour,
         if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(!isHorizontal);
     }
 
-    public void SetShadowSide(bool useRight)
-    {
-        currentFaceSprite = useRight ? cardRightShadow : cardLeftShadow;
-        if (!isShowingBack && image != null) image.sprite = currentFaceSprite;
-    }
-
-    public void ShowBack(int count)
+    public void ShowBack()
     {
         isShowingBack = true;
         if (image != null) image.sprite = cardBackSprite;
         if (horizontalVisual != null) horizontalVisual.gameObject.SetActive(false);
         if (verticalLeftVisual != null) verticalLeftVisual.gameObject.SetActive(false);
-        if (backCountVisual != null)
-        {
-            backCountVisual.gameObject.SetActive(true);
-            backCountVisual.text = count.ToString();
-        }
     }
 
     public void HideBack()
     {
         isShowingBack = false;
         if (image != null && currentFaceSprite != null) image.sprite = currentFaceSprite;
-        if (backCountVisual != null) backCountVisual.gameObject.SetActive(false);
         ApplyOrientation(restingHorizontal);
     }
 
