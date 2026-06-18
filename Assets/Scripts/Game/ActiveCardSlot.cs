@@ -5,6 +5,8 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
 {
     public static event System.Action CardPlayed;
 
+    [SerializeField] private Vector2 dropOffset;
+
     private ConnectionGraph graph;
     private Card activeCard;
 
@@ -19,7 +21,7 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         RectTransform rt = card.GetComponent<RectTransform>();
         RectTransform slotRT = GetComponent<RectTransform>();
         rt.DOKill();
-        rt.DOAnchorPos(slotRT.localPosition, 0.25f);
+        rt.DOAnchorPos((Vector2)slotRT.localPosition + dropOffset, 0.25f);
         rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
         card.SetHorizontal(true);
         card.SetSortingOrder(1);
@@ -38,7 +40,7 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         RectTransform rt = card.GetComponent<RectTransform>();
         RectTransform slotRT = GetComponent<RectTransform>();
         rt.DOKill();
-        rt.DOAnchorPos(slotRT.localPosition, 0.25f);
+        rt.DOAnchorPos((Vector2)slotRT.localPosition + dropOffset, 0.25f);
         rt.DOLocalRotateQuaternion(slotRT.localRotation, 0.25f);
         card.SetHorizontal(true);
         card.SetSortingOrder(1);
