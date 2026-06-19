@@ -20,4 +20,10 @@ public class CoinService : MonoBehaviour
         CoinsChanged?.Invoke();
         return true;
     }
+
+    public void Refund(int amount)
+    {
+        Coins += amount;
+        CoinsChanged?.Invoke();
+    }
 }

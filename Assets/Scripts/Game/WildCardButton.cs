@@ -30,5 +30,7 @@ public class WildCardButton : MonoBehaviour
         card.SetHorizontal(true);
 
         handManager.AddCardFromRevealPile(card);
+
+        UndoManager.Instance?.RecordWildCardSpawn(card, consumableButton);
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class ConsumableButton : MonoBehaviour, IPointerClickHandler
 {
+    public enum ConsumptionType { FreeUse, Coins, Ad }
+
     [SerializeField] private string consumableId;
     [SerializeField] private int coinCost;
     [SerializeField] private TMP_Text badgeText;
@@ -14,6 +16,10 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
 
     public System.Func<bool> CanActivate;
     public string ConsumableId => consumableId;
+
+    // Set right before onGranted fires — callers that need undo support (e.g. WildCardButton)
+    // read this synchronously to record which resource to refund later.
+    public ConsumptionType LastConsumptionType { get; private set; }
 
     private int freeUsesRemaining;
 
@@ -45,6 +51,7 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
         if (freeUsesRemaining > 0)
         {
             freeUsesRemaining--;
+            LastConsumptionType = ConsumptionType.FreeUse;
             RefreshDisplay();
             onGranted?.Invoke();
             return;
@@ -52,12 +59,34 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
 
         if (CoinService.Instance != null && CoinService.Instance.TrySpend(coinCost))
         {
+            LastConsumptionType = ConsumptionType.Coins;
             RefreshDisplay();
             onGranted?.Invoke();
             return;
         }
 
-        AdService.ShowRewardedAd(() => onGranted?.Invoke());
+        AdService.ShowRewardedAd(() =>
+        {
+            LastConsumptionType = ConsumptionType.Ad;
+            onGranted?.Invoke();
+        });
+    }
+
+    // Reverses whichever resource a past use spent — the caller (e.g. an undo record)
+    // must pass back the ConsumptionType it captured at the time, not rely on
+    // LastConsumptionType, since further uses may have happened since.
+    public void Refund(ConsumptionType type)
+    {
+        switch (type)
+        {
+            case ConsumptionType.FreeUse:
+                freeUsesRemaining++;
+                break;
+            case ConsumptionType.Coins:
+                CoinService.Instance?.Refund(coinCost);
+                break;
+        }
+        RefreshDisplay();
     }
 
     private void RefreshDisplay()

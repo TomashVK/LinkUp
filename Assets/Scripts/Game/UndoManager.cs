@@ -12,7 +12,7 @@ public class UndoManager : MonoBehaviour
     [SerializeField] private ActiveCardSlot activeCardSlot;
     [SerializeField] private CardDeck cardDeck;
 
-    private enum MoveType { Draw, PileToHand, PlayToSlot, DeckRestart }
+    private enum MoveType { Draw, PileToHand, PlayToSlot, DeckRestart, WildCardSpawn }
 
     private struct PileCardSnapshot
     {
@@ -30,6 +30,8 @@ public class UndoManager : MonoBehaviour
         public PileCardSnapshot[] pileSnapshot;
         public int preRestartDrawIndex;
         public CardData[] preRestartCards;
+        public ConsumableButton sourceButton;
+        public ConsumableButton.ConsumptionType consumptionType;
     }
 
     private readonly Stack<UndoRecord> history = new();
@@ -99,6 +101,19 @@ public class UndoManager : MonoBehaviour
         Debug.Log($"[UndoManager] RecordPlayToSlot | card={card.name} fromPile={fromPile} originIndex={originIndex} | historySize={history.Count}");
     }
 
+    public void RecordWildCardSpawn(Card card, ConsumableButton sourceButton)
+    {
+        var rec = new UndoRecord
+        {
+            moveType = MoveType.WildCardSpawn,
+            card = card,
+            sourceButton = sourceButton,
+            consumptionType = sourceButton != null ? sourceButton.LastConsumptionType : default
+        };
+        history.Push(rec);
+        Debug.Log($"[UndoManager] RecordWildCardSpawn | card={card.name} consumptionType={rec.consumptionType} | historySize={history.Count}");
+    }
+
     private void OnBeforeDeckRestart(IReadOnlyList<Card> pileCards)
     {
         var snapshot = new PileCardSnapshot[pileCards.Count];
@@ -157,6 +172,9 @@ public class UndoManager : MonoBehaviour
                 break;
             case MoveType.DeckRestart:
                 yield return StartCoroutine(UndoDeckRestart(record));
+                break;
+            case MoveType.WildCardSpawn:
+                yield return StartCoroutine(UndoWildCardSpawn(record));
                 break;
         }
 
@@ -238,6 +256,19 @@ public class UndoManager : MonoBehaviour
             Debug.Log($"[UndoManager] UndoPlayToSlot — returned to hand at index {record.originIndex}");
         }
 
+        yield return null;
+    }
+
+    private IEnumerator UndoWildCardSpawn(UndoRecord record)
+    {
+        Card card = record.card;
+        Debug.Log($"[UndoManager] UndoWildCardSpawn | card={card?.name} consumptionType={record.consumptionType}");
+        if (card != null)
+        {
+            handManager.RemoveCardFromHand(card);
+            Destroy(card.gameObject);
+        }
+        record.sourceButton?.Refund(record.consumptionType);
         yield return null;
     }
 
