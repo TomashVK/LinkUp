@@ -32,6 +32,7 @@ public class UndoManager : MonoBehaviour
         public CardData[] preRestartCards;
         public ConsumableButton sourceButton;
         public ConsumableButton.ConsumptionType consumptionType;
+        public RectTransform spawnPoint;
     }
 
     private readonly Stack<UndoRecord> history = new();
@@ -101,14 +102,15 @@ public class UndoManager : MonoBehaviour
         Debug.Log($"[UndoManager] RecordPlayToSlot | card={card.name} fromPile={fromPile} originIndex={originIndex} | historySize={history.Count}");
     }
 
-    public void RecordWildCardSpawn(Card card, ConsumableButton sourceButton)
+    public void RecordWildCardSpawn(Card card, ConsumableButton sourceButton, RectTransform spawnPoint)
     {
         var rec = new UndoRecord
         {
             moveType = MoveType.WildCardSpawn,
             card = card,
             sourceButton = sourceButton,
-            consumptionType = sourceButton != null ? sourceButton.LastConsumptionType : default
+            consumptionType = sourceButton != null ? sourceButton.LastConsumptionType : default,
+            spawnPoint = spawnPoint
         };
         history.Push(rec);
         Debug.Log($"[UndoManager] RecordWildCardSpawn | card={card.name} consumptionType={rec.consumptionType} | historySize={history.Count}");
@@ -265,11 +267,24 @@ public class UndoManager : MonoBehaviour
         Debug.Log($"[UndoManager] UndoWildCardSpawn | card={card?.name} consumptionType={record.consumptionType}");
         if (card != null)
         {
+            card.SetDraggable(false);
             handManager.RemoveCardFromHand(card);
+
+            RectTransform rt = card.GetComponent<RectTransform>();
+            RectTransform container = handManager.CardContainer != null
+                ? handManager.CardContainer
+                : handManager.GetComponent<RectTransform>().root.GetComponent<RectTransform>();
+
+            rt.DOKill();
+            if (record.spawnPoint != null)
+            {
+                Vector2 targetPos = container.InverseTransformPoint(record.spawnPoint.position);
+                yield return rt.DOAnchorPos(targetPos, CardAnimationSettings.Instance.MoveDuration).SetEase(Ease.Linear).WaitForCompletion();
+            }
+
             Destroy(card.gameObject);
         }
         record.sourceButton?.Refund(record.consumptionType);
-        yield return null;
     }
 
     private IEnumerator UndoDeckRestart(UndoRecord record)
