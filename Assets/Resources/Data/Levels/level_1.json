@@ -7,6 +7,10 @@
     "optimalMoves": 10,
     "optimalPath": ["bee", "bush", "deer", "snow", "ice", "rain", "wind", "bird", "cat", "wolf"],
     "pathDescription": "bee → [draw bush] → bush → deer → snow → ice → rain → wind → bird → cat → wolf",
-    "worstPath": "bee → butterfly → bush → bird → sun → wind → cloud → snow → ice → rain → pond → frog → wolf → deer → cat → fox  (7 draws, 30 moves)"
+    "worstPath": "bee → butterfly → bush → bird → sun → wind → cloud → snow → ice → rain → pond → frog → wolf → deer → cat → fox  (7 draws, 30 moves)",
+    "consumableFreeUses": [
+      {"id": "wildCard", "freeUses": 10},
+      {"id": "undo", "freeUses": 10}
+    ]
   }
 ]

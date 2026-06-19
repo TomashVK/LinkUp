@@ -19,6 +19,13 @@ public class ConnectionDefinition
 }
 
 [System.Serializable]
+public class ConsumableFreeUses
+{
+    public string id;
+    public int freeUses;
+}
+
+[System.Serializable]
 public class LevelDefinition
 {
     public int id;
@@ -27,6 +34,15 @@ public class LevelDefinition
     public string[] deck;
     public int maxMoves;
     public int optimalMoves;
+    public ConsumableFreeUses[] consumableFreeUses;
+
+    public int GetFreeUses(string consumableId)
+    {
+        if (consumableFreeUses == null) return 0;
+        foreach (ConsumableFreeUses c in consumableFreeUses)
+            if (c.id == consumableId) return c.freeUses;
+        return 0;
+    }
 }
 
 [System.Serializable]

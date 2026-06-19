@@ -30,7 +30,8 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
     {
         if (ActiveCard == null) return false;
         if (graph == null) return false;
-        if (!graph.CanPlay(ActiveCard.Data.gameId, card.Data.gameId)) return false;
+        bool isJoker = card.Data.isWild || ActiveCard.Data.isWild;
+        if (!isJoker && !graph.CanPlay(ActiveCard.Data.gameId, card.Data.gameId)) return false;
 
         UndoManager.Instance?.RecordPlayToSlot(card);
 

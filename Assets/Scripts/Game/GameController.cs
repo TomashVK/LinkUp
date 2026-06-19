@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private TMP_Text moveCountText;
     [SerializeField] private GameObject winPanel;
     [SerializeField] private HudStarDisplay hudStarDisplay;
+    [SerializeField] private ConsumableButton[] consumableButtons;
 
     private ConnectionGraph graph;
     private LevelDefinition level;
@@ -55,6 +56,9 @@ public class GameController : MonoBehaviour
         moveCounter.Init(level.maxMoves);
         if (hudStarDisplay != null) hudStarDisplay.Init(level.maxMoves, level.optimalMoves);
         RefreshMoveHUD();
+
+        foreach (ConsumableButton button in consumableButtons)
+            if (button != null) button.Init(level.GetFreeUses(button.ConsumableId));
 
         if (winPanel != null) winPanel.SetActive(false);
         if (continuePanel != null) continuePanel.gameObject.SetActive(false);
