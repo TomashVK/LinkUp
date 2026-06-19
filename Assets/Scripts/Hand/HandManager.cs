@@ -113,15 +113,13 @@ public class HandManager : MonoBehaviour
 
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
-        card.ShowBack();
-        GameObject countVisual = cardDeck.CreateTravelingCountVisual(newCardObj.transform, countBeforeDraw);
+        card.ShowBack(countBeforeDraw);
 
         onPlaced?.Invoke(card);
 
         yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
         yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
-        if (countVisual != null) Destroy(countVisual);
         card.HideBack();
         card.Init(data);
 
@@ -205,8 +203,7 @@ public class HandManager : MonoBehaviour
 
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
-        card.ShowBack();
-        GameObject countVisual = cardDeck.CreateTravelingCountVisual(newCardObj.transform, countBeforeDraw);
+        card.ShowBack(countBeforeDraw);
 
         onPlaced?.Invoke(card);
 
@@ -215,7 +212,6 @@ public class HandManager : MonoBehaviour
         yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
         // Swap: reveal card face (same as original mid-flip reveal)
-        if (countVisual != null) Destroy(countVisual);
         card.HideBack();
         card.Init(data);
         UndoManager.Instance?.RecordDraw(card);

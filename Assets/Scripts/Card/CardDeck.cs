@@ -99,18 +99,6 @@ public class CardDeck : MonoBehaviour, IPointerClickHandler
             deckVisual.gameObject.SetActive(false);
     }
 
-    public GameObject CreateTravelingCountVisual(Transform cardTransform, int displayCount)
-    {
-        if (deckCountText == null) return null;
-
-        GameObject clone = Instantiate(deckCountText.gameObject, cardTransform, worldPositionStays: false);
-        clone.SetActive(true);
-        TMP_Text t = clone.GetComponent<TMP_Text>();
-        if (t != null) t.text = displayCount.ToString();
-
-        return clone;
-    }
-
     public Vector2 GetSpawnPosition(RectTransform relativeTo)
     {
         if (relativeTo == null) return transform.localPosition;

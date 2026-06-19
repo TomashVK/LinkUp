@@ -193,8 +193,7 @@ public class UndoManager : MonoBehaviour
 
         yield return rt.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
-        card.ShowBack();
-        cardDeck.CreateTravelingCountVisual(rt, cardDeck.RemainingCount + 1);
+        card.ShowBack(cardDeck.RemainingCount + 1);
 
         yield return rt.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
         float afterFlipIn = Time.realtimeSinceStartup;
