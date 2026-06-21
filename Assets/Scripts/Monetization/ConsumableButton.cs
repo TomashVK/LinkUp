@@ -10,8 +10,10 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
     [SerializeField] private string consumableId;
     [SerializeField] private int coinCost;
     [SerializeField] private TMP_Text badgeText;
+    [SerializeField] private GameObject badgeContainer;
     [SerializeField] private GameObject adIcon;
     [SerializeField] private TMP_Text costLabel;
+    [SerializeField] private GameObject costContainer;
     [SerializeField] private UnityEvent onGranted;
 
     public System.Func<bool> CanActivate;
@@ -94,9 +96,9 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
         bool hasFreeUses = freeUsesRemaining > 0;
         bool hasEnoughCoins = CoinService.Instance != null && CoinService.Instance.Coins >= coinCost;
 
-        if (badgeText != null) badgeText.gameObject.SetActive(hasFreeUses);
+        if (badgeContainer != null) badgeContainer.SetActive(hasFreeUses);
         if (badgeText != null) badgeText.text = freeUsesRemaining.ToString();
-        if (costLabel != null) costLabel.gameObject.SetActive(!hasFreeUses);
+        if (costContainer != null) costContainer.SetActive(!hasFreeUses);
         if (costLabel != null) costLabel.text = coinCost.ToString();
         if (adIcon != null) adIcon.SetActive(!hasFreeUses && !hasEnoughCoins);
     }
