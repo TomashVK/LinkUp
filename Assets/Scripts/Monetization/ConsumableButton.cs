@@ -1,4 +1,5 @@
 using TMPro;
+using Solo.MOST_IN_ONE;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -44,7 +45,11 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
         CoinService.CoinsChanged -= RefreshDisplay;
     }
 
-    public void OnPointerClick(PointerEventData eventData) => RequestUse();
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        MOST_HapticFeedback.Generate(MOST_HapticFeedback.HapticTypes.MediumImpact);
+        RequestUse();
+    }
 
     private void RequestUse()
     {

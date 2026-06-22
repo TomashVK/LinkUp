@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Solo.MOST_IN_ONE;
 using UnityEngine;
 
 public class HandManager : MonoBehaviour
@@ -164,6 +165,7 @@ public class HandManager : MonoBehaviour
 
     private void DrawCard()
     {
+        MOST_HapticFeedback.Generate(MOST_HapticFeedback.HapticTypes.MediumImpact);
         if (isDrawing || isDealing) return;
         if (cardDeck == null) return;
         if (MoveCounter.IsOutOfMoves) return;
