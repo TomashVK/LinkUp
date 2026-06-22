@@ -19,6 +19,7 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
 
     public System.Func<bool> CanActivate;
     public string ConsumableId => consumableId;
+    public int FreeUsesRemaining => freeUsesRemaining;
 
     // Set right before onGranted fires — callers that need undo support (e.g. WildCardButton)
     // read this synchronously to record which resource to refund later.
@@ -31,6 +32,12 @@ public class ConsumableButton : MonoBehaviour, IPointerClickHandler
     public void Init(int freeUses)
     {
         freeUsesRemaining = freeUses;
+        RefreshDisplay();
+    }
+
+    public void RestoreFreeUses(int value)
+    {
+        freeUsesRemaining = value;
         RefreshDisplay();
     }
 

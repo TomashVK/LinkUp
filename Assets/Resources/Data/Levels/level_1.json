@@ -3,7 +3,7 @@
     "activeCard": "bee",
     "hand": ["bird", "deer", "snow", "wind", "rain", "ice", "cat", "wolf"],
     "deck": ["bush", "pond", "sun", "butterfly", "fox", "frog", "cloud"],
-    "maxMoves": 500,
+    "maxMoves": 50,
     "optimalMoves": 10,
     "optimalPath": ["bee", "bush", "deer", "snow", "ice", "rain", "wind", "bird", "cat", "wolf"],
     "pathDescription": "bee → [draw bush] → bush → deer → snow → ice → rain → wind → bird → cat → wolf",

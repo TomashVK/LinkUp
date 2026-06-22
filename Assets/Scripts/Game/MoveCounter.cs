@@ -40,6 +40,13 @@ public class MoveCounter : MonoBehaviour
         MovesChanged?.Invoke();
     }
 
+    public void RestoreState(int movesRemaining, int totalMovesSpent)
+    {
+        MovesRemaining = movesRemaining;
+        TotalMovesSpent = totalMovesSpent;
+        MovesChanged?.Invoke();
+    }
+
     public void AddMoves(int amount)
     {
         MovesRemaining += amount;

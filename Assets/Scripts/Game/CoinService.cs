@@ -6,11 +6,12 @@ public class CoinService : MonoBehaviour
 
     public static CoinService Instance { get; private set; }
 
-    public int Coins { get; private set; } = 9999;
+    public int Coins { get; private set; }
 
     private void Awake()
     {
         Instance = this;
+        Coins = SaveService.Instance.Data.coins;
     }
 
     public bool TrySpend(int amount)
@@ -18,6 +19,7 @@ public class CoinService : MonoBehaviour
         if (Coins < amount) return false;
         Coins -= amount;
         CoinsChanged?.Invoke();
+        SaveService.Instance.SetCoins(Coins);
         return true;
     }
 
@@ -25,5 +27,6 @@ public class CoinService : MonoBehaviour
     {
         Coins += amount;
         CoinsChanged?.Invoke();
+        SaveService.Instance.SetCoins(Coins);
     }
 }

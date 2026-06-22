@@ -722,6 +722,7 @@ GameObject:
   - component: {fileID: 399351778}
   - component: {fileID: 399351780}
   - component: {fileID: 399351779}
+  - component: {fileID: 399351781}
   m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
@@ -848,6 +849,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399351777}
   m_CullTransparentMesh: 1
+--- !u!114 &399351781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399351777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b11d3ae40338414fb9ce6a77823d4a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugResetTrigger
+  requiredTaps: 5
+  tapWindowSeconds: 2
 --- !u!1 &412096601
 GameObject:
   m_ObjectHideFlags: 0
@@ -1067,6 +1082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameController
   handManager: {fileID: 2041455341}
   cardDeck: {fileID: 33206883}
+  revealPile: {fileID: 545798891}
   activeCardSlot: {fileID: 1362270049}
   moveCounter: {fileID: 837744973}
   continuePanel: {fileID: 0}
@@ -1076,6 +1092,7 @@ MonoBehaviour:
   consumableButtons:
   - {fileID: 1395038926}
   - {fileID: 970776234}
+  alwaysDealFreshInEditor: 1
 --- !u!114 &512545808
 MonoBehaviour:
   m_ObjectHideFlags: 0

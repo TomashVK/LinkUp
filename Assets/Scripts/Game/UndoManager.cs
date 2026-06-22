@@ -6,6 +6,7 @@ using UnityEngine;
 public class UndoManager : MonoBehaviour
 {
     public static UndoManager Instance { get; private set; }
+    public static event System.Action UndoCompleted;
 
     [SerializeField] private HandManager handManager;
     [SerializeField] private RevealPile revealPile;
@@ -182,6 +183,7 @@ public class UndoManager : MonoBehaviour
 
         HandManager.IsAnimating = false;
         Debug.Log($"[UndoManager] Undo complete | type={record.moveType}");
+        UndoCompleted?.Invoke();
     }
 
     private IEnumerator UndoDraw(UndoRecord record)

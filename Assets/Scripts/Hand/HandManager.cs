@@ -30,6 +30,27 @@ public class HandManager : MonoBehaviour
     public int CardCount => handCards.Count;
     public RectTransform CardContainer => cardContainer;
 
+    public CardData[] GetHandCardData()
+    {
+        var data = new CardData[handCards.Count];
+        for (int i = 0; i < handCards.Count; i++) data[i] = handCards[i].Data;
+        return data;
+    }
+
+    // Plays the same spawn-from-deck flip-in animation used for a normal deal/draw,
+    // but for a card whose data is already known (e.g. restoring a save) rather than
+    // one pulled fresh off the deck — so a resumed level looks identical to a fresh one.
+    public void AnimateCardIn(CardData data, System.Action<Card> onPlaced, System.Action onDone, float delay = 0f)
+    {
+        StartCoroutine(AnimateCardInRoutine(data, delay, onPlaced, onDone));
+    }
+
+    private IEnumerator AnimateCardInRoutine(CardData data, float delay, System.Action<Card> onPlaced, System.Action onDone)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        yield return StartCoroutine(PlayDealAnimation(data, cardDeck.RemainingCount, onPlaced, null, onDone));
+    }
+
     private void Awake()
     {
         layout = new LinearCardLayout(transform, cardSpacing, margin, centerOnSafeArea: true);
@@ -105,16 +126,25 @@ public class HandManager : MonoBehaviour
         CardData data = cardDeck.DrawNext();
         cardDeck.UpdateDeckVisual();
 
+        yield return StartCoroutine(PlayDealAnimation(data, countBeforeDraw, onPlaced, null, onDone));
+    }
+
+    // Shared spawn-from-deck flip-in animation: spawn the card back at the deck,
+    // flip to reveal the face partway through the move, then finish unfolding.
+    // Used by fresh deals/draws (data pulled from the deck) and by save restore
+    // (data already known) so both look identical.
+    private IEnumerator PlayDealAnimation(CardData data, int backCount, System.Action<Card> onPlaced, System.Action<Card> onRevealed, System.Action onDone)
+    {
         RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
         Vector2 spawnPos = cardDeck.GetSpawnPosition(container);
-        GameObject newCardObj = Instantiate(cardPrefab, container);
+        GameObject newCardObj = Instantiate(PrefabFor(data), container);
         RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
         newCardRT.anchoredPosition = spawnPos;
         newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
 
         Card card = newCardObj.GetComponent<Card>();
         card.SetHorizontal(true);
-        card.ShowBack(countBeforeDraw);
+        card.ShowBack(backCount);
 
         onPlaced?.Invoke(card);
 
@@ -123,6 +153,7 @@ public class HandManager : MonoBehaviour
 
         card.HideBack();
         card.Init(data);
+        onRevealed?.Invoke(card);
 
         yield return newCardObj.transform.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
 
@@ -155,13 +186,19 @@ public class HandManager : MonoBehaviour
     public Card CreateCardFromData(CardData data, Vector2 spawnPos)
     {
         RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
-        GameObject newCardObj = Instantiate(cardPrefab, container);
+        GameObject newCardObj = Instantiate(PrefabFor(data), container);
         newCardObj.GetComponent<RectTransform>().anchoredPosition = spawnPos;
         Card card = newCardObj.GetComponent<Card>();
         card.Init(data);
         card.SetHorizontal(true);
         return card;
     }
+
+    // A wild card's distinct look comes entirely from its prefab (Card.Init only sets
+    // text), so any code that recreates a card from saved/recorded data must pick the
+    // same prefab WildCardButton uses, not the regular cardPrefab.
+    private GameObject PrefabFor(CardData data) =>
+        data.isWild && WildCardButton.Instance != null ? WildCardButton.Instance.WildCardPrefab : cardPrefab;
 
     private void DrawCard()
     {
@@ -196,30 +233,7 @@ public class HandManager : MonoBehaviour
         CardData data = cardDeck.DrawNext();
         cardDeck.UpdateDeckVisual();
 
-        RectTransform container = cardContainer != null ? cardContainer : transform.root.GetComponent<RectTransform>();
-        Vector2 spawnPos = cardDeck.GetSpawnPosition(container);
-        GameObject newCardObj = Instantiate(cardPrefab, container);
-        RectTransform newCardRT = newCardObj.GetComponent<RectTransform>();
-        newCardRT.anchoredPosition = spawnPos;
-        newCardRT.localEulerAngles = cardDeck.transform.localEulerAngles;
-
-        Card card = newCardObj.GetComponent<Card>();
-        card.SetHorizontal(true);
-        card.ShowBack(countBeforeDraw);
-
-        onPlaced?.Invoke(card);
-
-        yield return new WaitForSeconds(CardAnimationSettings.Instance.MoveDuration * CardAnimationSettings.Instance.FlipStartPercent);
-
-        yield return newCardObj.transform.DOScaleX(0f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
-
-        // Swap: reveal card face (same as original mid-flip reveal)
-        card.HideBack();
-        card.Init(data);
-        UndoManager.Instance?.RecordDraw(card);
-
-        // Second half of flip — card face unfolds into view
-        yield return newCardObj.transform.DOScaleX(1f, CardAnimationSettings.Instance.FlipHalfDuration).SetEase(Ease.Linear).WaitForCompletion();
+        yield return StartCoroutine(PlayDealAnimation(data, countBeforeDraw, onPlaced, card => UndoManager.Instance?.RecordDraw(card), null));
 
         isDrawing = false;
         IsAnimating = false;

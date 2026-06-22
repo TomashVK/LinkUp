@@ -2,6 +2,14 @@ using UnityEngine;
 
 public class WildCardButton : MonoBehaviour
 {
+    public static event System.Action WildCardSpawned;
+
+    // Other code restoring/recreating a wild card (e.g. save restore) needs the same
+    // prefab used here — exposed statically rather than duplicating this reference
+    // elsewhere in the scene.
+    public static WildCardButton Instance { get; private set; }
+    public GameObject WildCardPrefab => wildCardPrefab;
+
     [SerializeField] private GameObject wildCardPrefab;
     [SerializeField] private HandManager handManager;
     [SerializeField] private RectTransform spawnPoint;
@@ -9,6 +17,7 @@ public class WildCardButton : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         if (consumableButton != null)
             consumableButton.CanActivate = () => handManager.CanAcceptCard();
     }
@@ -32,5 +41,6 @@ public class WildCardButton : MonoBehaviour
         handManager.AddCardFromRevealPile(card);
 
         UndoManager.Instance?.RecordWildCardSpawn(card, consumableButton, spawnPoint);
+        WildCardSpawned?.Invoke();
     }
 }

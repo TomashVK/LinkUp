@@ -12,6 +12,13 @@ public class RevealPile : MonoBehaviour
     public bool IsCardInPile(Card card) => pileCards.Contains(card);
     public IReadOnlyList<Card> PileCards => pileCards;
 
+    public CardData[] GetPileCardData()
+    {
+        var data = new CardData[pileCards.Count];
+        for (int i = 0; i < pileCards.Count; i++) data[i] = pileCards[i].Data;
+        return data;
+    }
+
     private void OnEnable()
     {
         Card.Dropped += OnCardDropped;

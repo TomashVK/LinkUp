@@ -26,6 +26,13 @@ public class ActiveCardSlot : MonoBehaviour, ICardDrop
         PlaceCard(card, cardStack.Count);
     }
 
+    public CardData[] GetStackCardData()
+    {
+        var data = new CardData[cardStack.Count];
+        for (int i = 0; i < cardStack.Count; i++) data[i] = cardStack[i].Data;
+        return data;
+    }
+
     public bool OnCardDrop(Card card)
     {
         if (ActiveCard == null) return false;
